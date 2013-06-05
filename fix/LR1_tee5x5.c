@@ -122,7 +122,7 @@ int main ( int argc , char** argv ) {
 	fast_sodium_current_m__n1 = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  ) ; ;
 	fast_sodium_current_m_gate_alpha_m__n = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  ) ; ;
 	fast_sodium_current_m_gate_beta_m__n = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  ) ; ;
-	i = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  ) ; ;
+	//i = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  ) ; ;
 	membrane_I_stim__n = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  ) ; ;
 	membrane_V__n = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  ) ; ;
 	membrane_V__n1 = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  ) ; ;
@@ -134,7 +134,7 @@ int main ( int argc , char** argv ) {
 	membrane_i_si__n = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  ) ; ;
 
 	/* REVISION: removed membrane_time malloc */
-	n = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  ) ; ;
+	//n = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  ) ; ;
 	plateau_potassium_current_E_Kp__n = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  ) ; ;
 	plateau_potassium_current_Kp__n = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  ) ; ;
 	slow_inward_current_Cai__n = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  ) ; ;
