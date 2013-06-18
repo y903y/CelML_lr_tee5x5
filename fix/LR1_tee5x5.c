@@ -292,7 +292,7 @@ int main ( int argc , char** argv ) {
 
 		//Shortest Calculation Order:0
 		//----------------------------  NO LOOP: start:null end:null ----------------------------//
-			X0end = X0end;
+			//X0end = X0end;
 		//------------------------------- END -------------------------------//
 
 		//Shortest Calculation Order:0
@@ -339,22 +339,22 @@ int main ( int argc , char** argv ) {
 
 		//Shortest Calculation Order:0
 		//----------------------------  NO LOOP: start:null end:null ----------------------------//
-			X1end = X1end;
+			//X1end = X1end;
 		//------------------------------- END -------------------------------//
 
 		//Shortest Calculation Order:0
 		//----------------------------  NO LOOP: start:null end:null ----------------------------//
-			V0end = V0end;
+			//V0end = V0end;
 		//------------------------------- END -------------------------------//
 
 		//Shortest Calculation Order:0
 		//----------------------------  NO LOOP: start:null end:null ----------------------------//
-			V1end = V1end;
+			//V1end = V1end;
 		//------------------------------- END -------------------------------//
 
 		//Shortest Calculation Order:0
 		//----------------------------  NO LOOP: start:null end:null ----------------------------//
-			membrane_time = membrane_time;
+			//membrane_time = membrane_time;
 		//------------------------------- END -------------------------------//
 
 		/* REVISION: added the equation with differential equations, TODO: fix LeftHandSideTransposition (remove extra term at the end of equation and change the index)*/
