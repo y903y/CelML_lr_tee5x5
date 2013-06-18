@@ -36,7 +36,7 @@ int main ( int argc , char** argv ) {
 
 	/* REVISION: make index an int TODO: find a way to distinguish index variable */
 	//int __i;
-	int n;
+	//int n;
 	double* membrane_I_stim__n;
 	double* membrane_V__n;
 	double* membrane_V__n1;
@@ -265,6 +265,28 @@ int main ( int argc , char** argv ) {
 		/* REVISION: correct the indexing TODO: correct the indexing in the getSyntaxProgram */
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+
+		/*
+		 *初期化されていない変数をとりあえず初期化しておきます
+		 */
+		background_current_g_b=1.0;
+		background_current_E_b=1.0;
+		time_dependent_potassium_current_g_Kbar=1.0;
+		time_independent_potassium_current_Ko=1.0;
+		membrane_R=1.0;
+		membrane_T=1.0;
+		time_independent_potassium_current_Ki=1.0;
+		time_dependent_potassium_current_PR_NaK=1.0;
+		membrane_F=1.0;
+		time_dependent_potassium_current_Nai=1.0;
+		time_dependent_potassium_current_Nao=1.0;
+		fast_sodium_current_g_Na=1.0;
+		plateau_potassium_current_g_Kp=1.0;
+		membrane_C=1.0;
+		deltax1=1.0;
+		deltax2=1.0;
+		membrane_D=1.0;
+
 		for(__i=6; __i<=17; __i++){
 			slow_inward_current_f_gate_beta_f__n[__i] =  (  (  (  ( (double)0.0065 * exp(  (  ( - (double)0.02 )  *  ( membrane_V__n[__i] + (double)30 )  )  ) )  /  ( (double)1 + exp(  (  ( - (double)0.2 )  *  ( membrane_V__n[__i] + (double)30 )  )  ) )  )  * __flag2__n[ ( __i - 6 ) ] )  +  ( slow_inward_current_f_gate_beta_f__n[__i] *  ( 1 - __flag2__n[ ( __i - 6 ) ] )  )  ) ;
 			plateau_potassium_current_Kp__n[__i] =  (  (  ( (double)1 /  ( (double)1 + exp(  (  ( (double)7.488 - membrane_V__n[__i] )  / (double)5.98 )  ) )  )  * __flag2__n[ ( __i - 6 ) ] )  +  ( plateau_potassium_current_Kp__n[__i] *  ( 1 - __flag2__n[ ( __i - 6 ) ] )  )  ) ;
@@ -472,6 +494,7 @@ int main ( int argc , char** argv ) {
 	free ( __flag49__n ) ;
 	free ( __flag52__n ) ;
 	free ( __flag53__n ) ;
+	return 0;
 }
 
 
