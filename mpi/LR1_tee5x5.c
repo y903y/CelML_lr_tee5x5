@@ -8,6 +8,8 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<math.h>
+#include "mpi.h"
+
 #define __MAX_TIME_NUM 500.0
 #define __MAX_DATA_NUM 25
 
@@ -15,6 +17,16 @@
 int main ( int argc , char** argv ) ;
 
 int main ( int argc , char** argv ) {
+	int myrank;
+	int nodenum;
+	const int root=0;//rootを親とする
+	/*MPI 初期化*/
+	MPI_Init(&argc,&argv);
+	/*MPI ランクを取得*/
+	MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
+	/*クラスタの台数取得*/
+	MPI_Comm_size(MPI_COMM_WORLD,&nodenum);
+
 
 	double* V0end;
 	double* V1end;
@@ -287,7 +299,18 @@ int main ( int argc , char** argv ) {
 		deltax2=1.0;
 		membrane_D=1.0;
 
-		for(__i=6; __i<=17; __i++){
+
+
+		int calcindex=(18-6)/nodenum;
+		int mycalc=6+calcindex*myrank+calcindex-1;
+		if((18-6)%nodenum!=0 && myrank==nodenum) mycalc+=(18-6)%nodenum;
+		if(calcindex==0) {
+			printf("ノード数が多すぎ今のところ対応していません");
+			return -1;
+		}
+		for(__i=6+calcindex*myrank;__i<mycalc;__i++){
+
+		//for(__i=6; __i<=17; __i++){
 			slow_inward_current_f_gate_beta_f__n[__i] =  (  (  (  ( (double)0.0065 * exp(  (  ( - (double)0.02 )  *  ( membrane_V__n[__i] + (double)30 )  )  ) )  /  ( (double)1 + exp(  (  ( - (double)0.2 )  *  ( membrane_V__n[__i] + (double)30 )  )  ) )  )  * __flag2__n[ ( __i - 6 ) ] )  +  ( slow_inward_current_f_gate_beta_f__n[__i] *  ( 1 - __flag2__n[ ( __i - 6 ) ] )  )  ) ;
 			plateau_potassium_current_Kp__n[__i] =  (  (  ( (double)1 /  ( (double)1 + exp(  (  ( (double)7.488 - membrane_V__n[__i] )  / (double)5.98 )  ) )  )  * __flag2__n[ ( __i - 6 ) ] )  +  ( plateau_potassium_current_Kp__n[__i] *  ( 1 - __flag2__n[ ( __i - 6 ) ] )  )  ) ;
 			slow_inward_current_f_gate_alpha_f__n[__i] =  (  (  (  ( (double)0.012 * exp(  (  ( - (double)0.008 )  *  ( membrane_V__n[__i] + (double)28 )  )  ) )  /  ( (double)1 + exp(  ( (double)0.15 *  ( membrane_V__n[__i] + (double)28 )  )  ) )  )  * __flag2__n[ ( __i - 6 ) ] )  +  ( slow_inward_current_f_gate_alpha_f__n[__i] *  ( 1 - __flag2__n[ ( __i - 6 ) ] )  )  ) ;
