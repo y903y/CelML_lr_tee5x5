@@ -29,6 +29,8 @@ int main ( int argc , char** argv ) {
   a[4] = b[4];
   for (i = 0; i < 5; i++)
     testCell( "test_a", a[i], 0.1 );
+
+  testFinish();
 }
 ```
 
@@ -64,6 +66,8 @@ int main ( int argc , char** argv ) {
     a[i] = b[i];
     testCell( "test_a", a[i], 0.1 );
   }
+
+  testFinish();
 }
 ```
 
@@ -109,6 +113,8 @@ int main ( int argc , char** argv ) {
     a[i] = b[0]; /* WRONG */
     testCell( "test_a", a[i], 0.1 );
   }
+
+  testFinish();
 }
 ```
 

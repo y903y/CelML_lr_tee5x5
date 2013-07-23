@@ -6,8 +6,8 @@
 #include "test_cell.h"
 
 #define MAX_FILE_NAME_LENGTH 20
-#define MAX_TEST_NAME_LENGTH 50
-#define MAX_TEST_NUM 100
+#define MAX_TEST_NAME_LENGTH 80
+#define MAX_TEST_NUM 2500
 #define MAX_BUF_NUM  100
 
 FILE* fp;
@@ -36,6 +36,7 @@ testInit( char** argv , int proc )
   sprintf( fileName, "data/proc%d.dat", proc ) ;
 
   op = parseOp( argv );
+  hcreate( MAX_TEST_NUM );
   switch( op ) {
     case 't':
       fp = fopen( fileName, "r" );
@@ -55,14 +56,22 @@ testInit( char** argv , int proc )
 void
 testCell( char* testName, double cell, double diff )
 {
-  if( fun != NULL )
+  if( fun != NULL && cell != 0 && isnan(cell) == 0 )
     fun( testName, cell, diff );
+}
+
+void
+testFinish()
+{
+  hdestroy();
+  if( fp != NULL )
+    fclose(fp);
 }
 
 void
 testArg( char* testName, double cell, double diff )
 {
-  int    cnt;
+  int    cnt = 0;
   char   buff[MAX_BUF_NUM];
   char   fileTestName[MAX_TEST_NAME_LENGTH];
   double fileCell;
@@ -71,7 +80,7 @@ testArg( char* testName, double cell, double diff )
 
   fseek( fp, 0L, SEEK_SET );
   while( fgets( buff, sizeof( buff ), fp ) != NULL ) {
-    sscanf ( buff, "%lf%s", &fileCell, fileTestName );
+    sscanf ( buff, "%lf%s\n", &fileCell, fileTestName );
     if( strcmp( fileTestName, testName ) == 0 ) {
       if( cnt > 0 ) {
         cnt--;
@@ -109,10 +118,8 @@ parseOp( char** argv )
 ENTRY*
 findOrCreateHash( char* testName )
 {
-  static ENTRY* ep;
+  ENTRY* ep;
   ENTRY e;
-
-  hcreate( MAX_TEST_NUM );
   e.key = strdup( testName );
   ep = hsearch( e, FIND );
   if( ep != NULL ) {
@@ -130,7 +137,7 @@ getCount( ENTRY* ep )
   int cnt = 0;
   if( ep != NULL )
     cnt = (int)( ep->data );
-  return cnt;
+  return (int)( ep->data );
 }
 
 void
