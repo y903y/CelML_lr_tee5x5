@@ -137,7 +137,7 @@ getCount( ENTRY* ep )
   int cnt = 0;
   if( ep != NULL )
     cnt = (int)( ep->data );
-  return (int)( ep->data );
+  return cnt;
 }
 
 void
