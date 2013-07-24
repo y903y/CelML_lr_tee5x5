@@ -7,7 +7,6 @@
 
 #define MAX_FILE_NAME_LENGTH 20
 #define MAX_TEST_NAME_LENGTH 80
-#define MAX_TEST_NUM 2500
 #define MAX_BUF_NUM  100
 
 FILE* fp;
@@ -36,7 +35,7 @@ testInit( char** argv , int proc )
   sprintf( fileName, "data/proc%d.dat", proc ) ;
 
   op = parseOp( argv );
-  hcreate( MAX_TEST_NUM );
+  hcreate(1);
   switch( op ) {
     case 't':
       fp = fopen( fileName, "r" );
@@ -125,6 +124,7 @@ findOrCreateHash( char* testName )
   if( ep != NULL ) {
     (int)( ep->data )++;
   } else {
+    hcreate(1);
     e.data = (void*)0;
     ep = hsearch( e, ENTER );
   }
