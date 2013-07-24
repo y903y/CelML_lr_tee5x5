@@ -19,6 +19,10 @@ int main ( int argc , char** argv ) ;
 int main ( int argc , char** argv ) {
 	int myrank;
 	int nodenum;
+	MPI_Status recv_status;
+	int tag = 0;
+	int sourcerank;
+	int sourcecalc;
 	const int root=0;//rootを親とする
 	/*MPI 初期化*/
 	MPI_Init(&argc,&argv);
@@ -27,6 +31,8 @@ int main ( int argc , char** argv ) {
 	/*クラスタの台数取得*/
 	MPI_Comm_size(MPI_COMM_WORLD,&nodenum);
 
+	/*ログ用カウンタ*/
+	int logcount = 0;
 
 	double* V0end;
 	double* V1end;
@@ -216,12 +222,80 @@ int main ( int argc , char** argv ) {
 	__flag53__n[16-6] = 0;
 	deltat=0.001;
 
-	/* REVISION: replace time with membrane_time TODO: homogenize the time variables */
-	for(membrane_time = 0.000000; ( membrane_time <= 500.000000 ) ;membrane_time =  ( membrane_time + deltat ) ){
+	/*ループ内の変数への代入をループの外に*/
+	/* REVISION: replace time with membrane_time and correct the indexing TODO: correct the indexing in the getSyntaxProgram */
+	//if(membrane_time == (double)0.000000){
+		fast_sodium_current_j__n[8] = (double)0.98767124;
+		fast_sodium_current_h__n[8] = (double)0.9804713;
+		slow_inward_current_d__n[8] = (double)0.00316354;
+		time_dependent_potassium_current_X__n[8] = (double)0.16647703;
+		fast_sodium_current_m__n[8] = (double)0.00187018;
+		slow_inward_current_f__n[8] = (double)0.99427859;
+		membrane_V__n[8] = (double)-83.853;
+		slow_inward_current_Cai__n[8] = (double)0.0002;
+		fast_sodium_current_j__n[6] = (double)0.98767124;
+		fast_sodium_current_h__n[6] = (double)0.9804713;
+		time_dependent_potassium_current_X__n[6] = (double)0.16647703;
+		slow_inward_current_d__n[6] = (double)0.00316354;
+		slow_inward_current_f__n[6] = (double)0.99427859;
+		fast_sodium_current_m__n[6] = (double)0.00187018;
+		slow_inward_current_Cai__n[6] = (double)0.0002;
+		membrane_V__n[6] = (double)-83.853;
+		fast_sodium_current_h__n[7] = (double)0.9804713;
+		fast_sodium_current_j__n[7] = (double)0.98767124;
+		time_dependent_potassium_current_X__n[7] = (double)0.16647703;
+		slow_inward_current_d__n[7] = (double)0.00316354;
+		slow_inward_current_f__n[7] = (double)0.99427859;
+		fast_sodium_current_m__n[7] = (double)0.00187018;
+		slow_inward_current_Cai__n[7] = (double)0.0002;
+		membrane_V__n[7] = (double)-83.853;
+		fast_sodium_current_h__n[17] = (double)0.9804713;
+		fast_sodium_current_j__n[17] = (double)0.98767124;
+		fast_sodium_current_m__n[17] = (double)0.00187018;
+		slow_inward_current_f__n[17] = (double)0.99427859;
+		slow_inward_current_d__n[17] = (double)0.00316354;
+		time_dependent_potassium_current_X__n[17] = (double)0.16647703;
+		fast_sodium_current_j__n[12] = (double)0.98767124;
+		fast_sodium_current_h__n[12] = (double)0.9804713;
+		membrane_V__n[17] = (double)-83.853;
+		slow_inward_current_Cai__n[17] = (double)0.0002;
+		fast_sodium_current_m__n[12] = (double)0.00187018;
+		slow_inward_current_f__n[12] = (double)0.99427859;
+		slow_inward_current_d__n[12] = (double)0.00316354;
+		time_dependent_potassium_current_X__n[12] = (double)0.16647703;
+		membrane_V__n[12] = (double)-83.853;
+		slow_inward_current_Cai__n[12] = (double)0.0002;
+	//}
 
+	/*ループ内の変数への代入をループの外に*/
+	/*初期化されていない変数をとりあえず初期化しておきます*/
+	background_current_g_b = 1.0;
+	background_current_E_b = 1.0;
+	time_dependent_potassium_current_g_Kbar = 1.0;
+	time_independent_potassium_current_Ko = 1.0;
+	membrane_R = 1.0;
+	membrane_T = 1.0;
+	time_independent_potassium_current_Ki = 1.0;
+	time_dependent_potassium_current_PR_NaK = 1.0;
+	membrane_F = 1.0;
+	time_dependent_potassium_current_Nai = 1.0;
+	time_dependent_potassium_current_Nao = 1.0;
+	fast_sodium_current_g_Na = 1.0;
+	plateau_potassium_current_g_Kp = 1.0;
+	membrane_C = 1.0;
+	deltax1 = 1.0;
+	deltax2 = 1.0;
+	membrane_D = 1.0;
+
+
+	/* REVISION: replace time with membrane_time TODO: homogenize the time variables */
+	for(membrane_time = 0.000000; ( membrane_time <= 500.000000 ); membrane_time =  ( membrane_time + deltat ) ){
+
+		/*ログカウンタ増加*/
+		logcount++;
 
 		/* REVISION: replace time with membrane_time and correct the indexing TODO: correct the indexing in the getSyntaxProgram */
-		if(membrane_time == (double)0.000000){
+		/*if(membrane_time == (double)0.000000){
 			fast_sodium_current_j__n[8] = (double)0.98767124;
 			fast_sodium_current_h__n[8] = (double)0.9804713;
 			slow_inward_current_d__n[8] = (double)0.00316354;
@@ -262,7 +336,7 @@ int main ( int argc , char** argv ) {
 			time_dependent_potassium_current_X__n[12] = (double)0.16647703;
 			membrane_V__n[12] = (double)-83.853;
 			slow_inward_current_Cai__n[12] = (double)0.0002;
-		}
+		}*/
 
 			//Shortest Calculation Order:0
 		//----------------------------  NO LOOP: start:null end:null ----------------------------//
@@ -281,6 +355,7 @@ int main ( int argc , char** argv ) {
 		/*
 		 *初期化されていない変数をとりあえず初期化しておきます
 		 */
+		/*
 		background_current_g_b=1.0;
 		background_current_E_b=1.0;
 		time_dependent_potassium_current_g_Kbar=1.0;
@@ -298,17 +373,19 @@ int main ( int argc , char** argv ) {
 		deltax1=1.0;
 		deltax2=1.0;
 		membrane_D=1.0;
+		*/
 
 
 
-		int calcindex=(18-6)/nodenum;
-		int mycalc=6+calcindex*myrank+calcindex-1;
-		if((18-6)%nodenum!=0 && myrank==nodenum) mycalc+=(18-6)%nodenum;
-		if(calcindex==0) {
-			printf("ノード数が多すぎ今のところ対応していません");
+		int calcindex = (18-6)/nodenum;
+		int mycalc = 6 + calcindex * myrank + calcindex - 1;
+		if((18-6) % nodenum != 0 && myrank == nodenum - 1) mycalc += (18-6) % nodenum;
+		if(calcindex == 0) {
+			printf("ノード数が多すぎ今のところ対応していません\n");
 			return -1;
 		}
-		for(__i=6+calcindex*myrank;__i<mycalc;__i++){
+
+		for(__i = 6 + calcindex * myrank; __i <= mycalc; __i++){
 
 		//for(__i=6; __i<=17; __i++){
 			slow_inward_current_f_gate_beta_f__n[__i] =  (  (  (  ( (double)0.0065 * exp(  (  ( - (double)0.02 )  *  ( membrane_V__n[__i] + (double)30 )  )  ) )  /  ( (double)1 + exp(  (  ( - (double)0.2 )  *  ( membrane_V__n[__i] + (double)30 )  )  ) )  )  * __flag2__n[ ( __i - 6 ) ] )  +  ( slow_inward_current_f_gate_beta_f__n[__i] *  ( 1 - __flag2__n[ ( __i - 6 ) ] )  )  ) ;
@@ -333,6 +410,7 @@ int main ( int argc , char** argv ) {
 			fast_sodium_current_m_gate_alpha_m__n[__i] =  (  (  (  ( (double)0.32 *  ( membrane_V__n[__i] + (double)47.13 )  )  /  ( (double)1 - exp(  (  ( - (double)0.1 )  *  ( membrane_V__n[__i] + (double)47.13 )  )  ) )  )  * __flag2__n[ ( __i - 6 ) ] )  +  ( fast_sodium_current_m_gate_alpha_m__n[__i] *  ( 1 - __flag2__n[ ( __i - 6 ) ] )  )  ) ;
 			fast_sodium_current_h_gate_beta_h__n[__i] =  (  (  (  ( membrane_V__n[__i] <  ( - (double)40 )  )  ?  (  ( (double)3.56 * exp(  ( (double)0.079 * membrane_V__n[__i] )  ) )  +  ( (double)310000 * exp(  ( (double)0.35 * membrane_V__n[__i] )  ) )  )  :  ( (double)1 /  ( (double)0.13 *  ( (double)1 + exp(  (  ( membrane_V__n[__i] + (double)10.66 )  /  ( - (double)11.1 )  )  ) )  )  )  )  * __flag2__n[ ( __i - 6 ) ] )  +  ( fast_sodium_current_h_gate_beta_h__n[__i] *  ( 1 - __flag2__n[ ( __i - 6 ) ] )  )  ) ;
 		}
+
 		//----------------------------- LOOP END -----------------------------//
 
 		//Shortest Calculation Order:0
@@ -442,6 +520,36 @@ int main ( int argc , char** argv ) {
 		/* REVISION: added the equation with differential equations, TODO: fix LeftHandSideTransposition (remove extra term at the end of equation). FIX indexing */
 		//Shortest Calculation Order:4
 		//---------------------------- LOOP ----------------------------//
+
+
+		/*最初の通信は出来ている?それ以降はnanに*/
+		/*membrane_V__n[]をrootに集約*/
+		if(myrank == root){
+			for(sourcerank = 1; sourcerank < nodenum; sourcerank++){
+				sourcecalc = 6 + calcindex * sourcerank + calcindex - 1;
+				for(__i = 6 + calcindex * sourcerank; __i <= sourcecalc; __i++){
+					MPI_Recv(&membrane_V__n[__i], 1, MPI_DOUBLE, sourcerank, tag, MPI_COMM_WORLD, &recv_status);
+				}
+			}
+		}
+		else {
+			for(__i = 6 + calcindex * myrank; __i <= mycalc; __i++){
+				MPI_Send(&membrane_V__n[__i], 1, MPI_DOUBLE, root, tag, MPI_COMM_WORLD);
+			}
+		}
+
+		/*recv出来ているか確認*/
+		if(myrank == root){
+			for(__i=6; __i<=17; __i++){
+				printf("membrane_V__n:%f\n", membrane_V__n[__i]);
+			}
+		}
+
+		/*ここが出来ていない?*/
+		/*membrane_V__n[]を各ノードに送信*/
+		MPI_Bcast(&membrane_V__n[0], __MAX_DATA_NUM, MPI_DOUBLE, root, MPI_COMM_WORLD);
+
+		/*依存関係有のループ*/
 		for(__i=6; __i<=17; __i++){
 			membrane_V__n1[__i]  =  ( membrane_V__n[__i] + deltat * (  (  (  (  ( - (double)1 )  / membrane_C )  *  ( membrane_I_stim__n[__i] + membrane_i_Na__n[__i] + membrane_i_si__n[__i] + membrane_i_K__n[__i] + membrane_i_K1__n[__i] + membrane_i_Kp__n[__i] + membrane_i_b__n[__i] )  )  +  ( membrane_D *  (  ( membrane_V__n[ ( __i + 1 ) ] +  ( -  ( (double)2 * membrane_V__n[__i] )  )  + membrane_V__n[__i-1] )  /  ( deltax1 * deltax1 )  )  )  +  ( membrane_D *  (  ( membrane_V__n[__i+5] +  ( -  ( (double)2 * membrane_V__n[__i] )  )  + membrane_V__n[__i-5] )  /  ( deltax2 * deltax2 )  )  )  )  * __flag53__n[ ( __i - 6 ) ] ) )  *  ( 1 - __flag53__n[ ( __i - 6 ) ] );
 		}
@@ -456,6 +564,12 @@ int main ( int argc , char** argv ) {
 			fast_sodium_current_m__n[__i] = fast_sodium_current_m__n1[__i];
 			slow_inward_current_f__n[__i] = slow_inward_current_f__n1[__i];
 			membrane_V__n[__i] = membrane_V__n1[__i];
+		}
+
+		if (logcount % 100 == 0){
+			for(__i=6; __i<=17; __i++){
+				printf("%f\n", membrane_V__n[__i]);
+			}
 		}
 
 	}
@@ -517,9 +631,11 @@ int main ( int argc , char** argv ) {
 	free ( __flag49__n ) ;
 	free ( __flag52__n ) ;
 	free ( __flag53__n ) ;
+
+	/*MPIの終了*/
+	MPI_Finalize();
+
 	return 0;
 }
-
-
 
 

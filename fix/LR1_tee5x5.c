@@ -289,26 +289,47 @@ int main ( int argc , char** argv ) {
 
 		for(__i=6; __i<=17; __i++){
 			slow_inward_current_f_gate_beta_f__n[__i] =  (  (  (  ( (double)0.0065 * exp(  (  ( - (double)0.02 )  *  ( membrane_V__n[__i] + (double)30 )  )  ) )  /  ( (double)1 + exp(  (  ( - (double)0.2 )  *  ( membrane_V__n[__i] + (double)30 )  )  ) )  )  * __flag2__n[ ( __i - 6 ) ] )  +  ( slow_inward_current_f_gate_beta_f__n[__i] *  ( 1 - __flag2__n[ ( __i - 6 ) ] )  )  ) ;
+			printf("%f\n", slow_inward_current_f_gate_beta_f__n[__i]);
 			plateau_potassium_current_Kp__n[__i] =  (  (  ( (double)1 /  ( (double)1 + exp(  (  ( (double)7.488 - membrane_V__n[__i] )  / (double)5.98 )  ) )  )  * __flag2__n[ ( __i - 6 ) ] )  +  ( plateau_potassium_current_Kp__n[__i] *  ( 1 - __flag2__n[ ( __i - 6 ) ] )  )  ) ;
+			printf("%f\n", plateau_potassium_current_Kp__n[__i]);
 			slow_inward_current_f_gate_alpha_f__n[__i] =  (  (  (  ( (double)0.012 * exp(  (  ( - (double)0.008 )  *  ( membrane_V__n[__i] + (double)28 )  )  ) )  /  ( (double)1 + exp(  ( (double)0.15 *  ( membrane_V__n[__i] + (double)28 )  )  ) )  )  * __flag2__n[ ( __i - 6 ) ] )  +  ( slow_inward_current_f_gate_alpha_f__n[__i] *  ( 1 - __flag2__n[ ( __i - 6 ) ] )  )  ) ;
+			printf("%f\n", slow_inward_current_f_gate_alpha_f__n[__i]);
 			slow_inward_current_d_gate_alpha_d__n[__i] =  (  (  (  ( (double)0.095 * exp(  (  ( - (double)0.01 )  *  ( membrane_V__n[__i] - (double)5 )  )  ) )  /  ( (double)1 + exp(  (  ( - (double)0.072 )  *  ( membrane_V__n[__i] - (double)5 )  )  ) )  )  * __flag2__n[ ( __i - 6 ) ] )  +  ( slow_inward_current_d_gate_alpha_d__n[__i] *  ( 1 - __flag2__n[ ( __i - 6 ) ] )  )  ) ;
+			printf("%f\n", slow_inward_current_d_gate_alpha_d__n[__i]);
 			slow_inward_current_d_gate_beta_d__n[__i] =  (  (  (  ( (double)0.07 * exp(  (  ( - (double)0.017 )  *  ( membrane_V__n[__i] + (double)44 )  )  ) )  /  ( (double)1 + exp(  ( (double)0.05 *  ( membrane_V__n[__i] + (double)44 )  )  ) )  )  * __flag2__n[ ( __i - 6 ) ] )  +  ( slow_inward_current_d_gate_beta_d__n[__i] *  ( 1 - __flag2__n[ ( __i - 6 ) ] )  )  ) ;
+			printf("%f\n", slow_inward_current_d_gate_beta_d__n[__i]);
 			slow_inward_current_E_si__n[__i] =  (  (  ( (double)7.7 -  ( (double)13.0287 * log(  ( slow_inward_current_Cai__n[__i] / (double)1 )  ) )  )  * __flag2__n[ ( __i - 6 ) ] )  +  ( slow_inward_current_E_si__n[__i] *  ( 1 - __flag2__n[ ( __i - 6 ) ] )  )  ) ;
+			printf("%f\n", slow_inward_current_E_si__n[__i]);
 			membrane_i_b__n[__i] =  (  (  ( background_current_g_b *  ( membrane_V__n[__i] - background_current_E_b )  )  * __flag2__n[ ( __i - 6 ) ] )  +  ( membrane_i_b__n[__i] *  ( 1 - __flag2__n[ ( __i - 6 ) ] )  )  ) ;
+			printf("%f\n", membrane_i_b__n[__i]);
 			fast_sodium_current_j_gate_beta_j__n[__i] =  (  (  (  ( membrane_V__n[__i] <  ( - (double)40 )  )  ?  (  ( (double)0.1212 * exp(  (  ( - (double)0.01052 )  * membrane_V__n[__i] )  ) )  /  ( (double)1 + exp(  (  ( - (double)0.1378 )  *  ( membrane_V__n[__i] + (double)40.14 )  )  ) )  )  :  (  ( (double)0.3 * exp(  (  ( - (double)0.0000002535 )  * membrane_V__n[__i] )  ) )  /  ( (double)1 + exp(  (  ( - (double)0.1 )  *  ( membrane_V__n[__i] + (double)32 )  )  ) )  )  )  * __flag2__n[ ( __i - 6 ) ] )  +  ( fast_sodium_current_j_gate_beta_j__n[__i] *  ( 1 - __flag2__n[ ( __i - 6 ) ] )  )  ) ;
+			printf("%f\n", fast_sodium_current_j_gate_beta_j__n[__i]);
 			time_dependent_potassium_current_g_K__n[__i] =  (  (  ( time_dependent_potassium_current_g_Kbar * sqrt(  ( time_independent_potassium_current_Ko / (double)5.4 )  ) )  * __flag2__n[ ( __i - 6 ) ] )  +  ( time_dependent_potassium_current_g_K__n[__i] *  ( 1 - __flag2__n[ ( __i - 6 ) ] )  )  ) ;
+			printf("%f\n", time_dependent_potassium_current_g_K__n[__i]);
 			time_dependent_potassium_current_E_K__n[__i] =  (  (  (  (  ( membrane_R * membrane_T )  / membrane_F )  * log(  (  ( time_independent_potassium_current_Ko +  ( time_dependent_potassium_current_PR_NaK * time_dependent_potassium_current_Nao )  )  /  ( time_independent_potassium_current_Ki +  ( time_dependent_potassium_current_PR_NaK * time_dependent_potassium_current_Nai )  )  )  ) )  * __flag2__n[ ( __i - 6 ) ] )  +  ( time_dependent_potassium_current_E_K__n[__i] *  ( 1 - __flag2__n[ ( __i - 6 ) ] )  )  ) ;
+			printf("%f\n", time_dependent_potassium_current_E_K__n[__i]);
 			time_dependent_potassium_current_X_gate_alpha_X__n[__i] =  (  (  (  ( (double)0.0005 * exp(  ( (double)0.083 *  ( membrane_V__n[__i] + (double)50 )  )  ) )  /  ( (double)1 + exp(  ( (double)0.057 *  ( membrane_V__n[__i] + (double)50 )  )  ) )  )  * __flag2__n[ ( __i - 6 ) ] )  +  ( time_dependent_potassium_current_X_gate_alpha_X__n[__i] *  ( 1 - __flag2__n[ ( __i - 6 ) ] )  )  ) ;
+			printf("%f\n", time_dependent_potassium_current_X_gate_alpha_X__n[__i]);
 			time_dependent_potassium_current_X_gate_beta_X__n[__i] =  (  (  (  ( (double)0.0013 * exp(  (  ( - (double)0.06 )  *  ( membrane_V__n[__i] + (double)20 )  )  ) )  /  ( (double)1 + exp(  (  ( - (double)0.04 )  *  ( membrane_V__n[__i] + (double)20 )  )  ) )  )  * __flag2__n[ ( __i - 6 ) ] )  +  ( time_dependent_potassium_current_X_gate_beta_X__n[__i] *  ( 1 - __flag2__n[ ( __i - 6 ) ] )  )  ) ;
+			printf("%f\n", time_dependent_potassium_current_X_gate_beta_X__n[__i]);
 			time_dependent_potassium_current_Xi__n[__i] =  (  (  (  ( membrane_V__n[__i] >  ( - (double)100 )  )  ?  (  ( (double)2.837 *  ( exp(  ( (double)0.04 *  ( membrane_V__n[__i] + (double)77 )  )  ) - (double)1 )  )  /  (  ( membrane_V__n[__i] + (double)77 )  * exp(  ( (double)0.04 *  ( membrane_V__n[__i] + (double)35 )  )  ) )  )  : (double)1 )  * __flag2__n[ ( __i - 6 ) ] )  +  ( time_dependent_potassium_current_Xi__n[__i] *  ( 1 - __flag2__n[ ( __i - 6 ) ] )  )  ) ;
+			printf("%f\n", time_dependent_potassium_current_Xi__n[__i]);
 			time_independent_potassium_current_g_K1__n[__i] =  (  (  ( (double)0.6047 * sqrt(  ( time_independent_potassium_current_Ko / (double)5.4 )  ) )  * __flag2__n[ ( __i - 6 ) ] )  +  ( time_independent_potassium_current_g_K1__n[__i] *  ( 1 - __flag2__n[ ( __i - 6 ) ] )  )  ) ;
+			printf("%f\n", time_independent_potassium_current_g_K1__n[__i]);
 			time_independent_potassium_current_E_K1__n[__i] =  (  (  (  (  ( membrane_R * membrane_T )  / membrane_F )  * log(  ( time_independent_potassium_current_Ko / time_independent_potassium_current_Ki )  ) )  * __flag2__n[ ( __i - 6 ) ] )  +  ( time_independent_potassium_current_E_K1__n[__i] *  ( 1 - __flag2__n[ ( __i - 6 ) ] )  )  ) ;
+			printf("%f\n", time_independent_potassium_current_E_K1__n[__i]);
 			fast_sodium_current_E_Na__n[__i] =  (  (  (  (  ( membrane_R * membrane_T )  / membrane_F )  * log(  ( time_dependent_potassium_current_Nao / time_dependent_potassium_current_Nai )  ) )  * __flag2__n[ ( __i - 6 ) ] )  +  ( fast_sodium_current_E_Na__n[__i] *  ( 1 - __flag2__n[ ( __i - 6 ) ] )  )  ) ;
+			printf("%f\n", fast_sodium_current_E_Na__n[__i]);
 			fast_sodium_current_j_gate_alpha_j__n[__i] =  (  (  (  ( membrane_V__n[__i] <  ( - (double)40 )  )  ?  (  (  (  (  ( - (double)127140 )  * exp(  ( (double)0.2444 * membrane_V__n[__i] )  ) )  -  ( (double)0.00003474 * exp(  (  ( - (double)0.04391 )  * membrane_V__n[__i] )  ) )  )  *  ( membrane_V__n[__i] + (double)37.78 )  )  /  ( (double)1 + exp(  ( (double)0.311 *  ( membrane_V__n[__i] + (double)79.23 )  )  ) )  )  : (double)0 )  * __flag2__n[ ( __i - 6 ) ] )  +  ( fast_sodium_current_j_gate_alpha_j__n[__i] *  ( 1 - __flag2__n[ ( __i - 6 ) ] )  )  ) ;
+			printf("%f\n", fast_sodium_current_j_gate_alpha_j__n[__i]);
 			fast_sodium_current_h_gate_alpha_h__n[__i] =  (  (  (  ( membrane_V__n[__i] <  ( - (double)40 )  )  ?  ( (double)0.135 * exp(  (  ( (double)80 + membrane_V__n[__i] )  /  ( - (double)6.8 )  )  ) )  : (double)0 )  * __flag2__n[ ( __i - 6 ) ] )  +  ( fast_sodium_current_h_gate_alpha_h__n[__i] *  ( 1 - __flag2__n[ ( __i - 6 ) ] )  )  ) ;
+			printf("%f\n", fast_sodium_current_h_gate_alpha_h__n[__i]);
 			fast_sodium_current_m_gate_beta_m__n[__i] =  (  (  ( (double)0.08 * exp(  (  ( - membrane_V__n[__i] )  / (double)11 )  ) )  * __flag2__n[ ( __i - 6 ) ] )  +  ( fast_sodium_current_m_gate_beta_m__n[__i] *  ( 1 - __flag2__n[ ( __i - 6 ) ] )  )  ) ;
+			printf("%f\n", fast_sodium_current_m_gate_beta_m__n[__i]);
 			fast_sodium_current_m_gate_alpha_m__n[__i] =  (  (  (  ( (double)0.32 *  ( membrane_V__n[__i] + (double)47.13 )  )  /  ( (double)1 - exp(  (  ( - (double)0.1 )  *  ( membrane_V__n[__i] + (double)47.13 )  )  ) )  )  * __flag2__n[ ( __i - 6 ) ] )  +  ( fast_sodium_current_m_gate_alpha_m__n[__i] *  ( 1 - __flag2__n[ ( __i - 6 ) ] )  )  ) ;
+			printf("%f\n", fast_sodium_current_m_gate_alpha_m__n[__i]);
 			fast_sodium_current_h_gate_beta_h__n[__i] =  (  (  (  ( membrane_V__n[__i] <  ( - (double)40 )  )  ?  (  ( (double)3.56 * exp(  ( (double)0.079 * membrane_V__n[__i] )  ) )  +  ( (double)310000 * exp(  ( (double)0.35 * membrane_V__n[__i] )  ) )  )  :  ( (double)1 /  ( (double)0.13 *  ( (double)1 + exp(  (  ( membrane_V__n[__i] + (double)10.66 )  /  ( - (double)11.1 )  )  ) )  )  )  )  * __flag2__n[ ( __i - 6 ) ] )  +  ( fast_sodium_current_h_gate_beta_h__n[__i] *  ( 1 - __flag2__n[ ( __i - 6 ) ] )  )  ) ;
+			printf("%f\n", fast_sodium_current_h_gate_beta_h__n[__i]);
 		}
 		//----------------------------- LOOP END -----------------------------//
 
