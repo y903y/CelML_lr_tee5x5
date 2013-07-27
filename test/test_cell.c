@@ -20,8 +20,8 @@ void
 writeArg( char* testName, double cell, double diff );
 void
 skipTest( char* testName, double cell, double diff );
-ENTRY*
-findOrCreateHash( char* testName );
+void
+findOrCreateHash( ENTRY* ep, char* testName );
 int
 getCount( ENTRY* ep );
 void
@@ -70,12 +70,14 @@ testFinish()
 void
 testArg( char* testName, double cell, double diff )
 {
+  static ENTRY* ep;
   int    cnt = 0;
   char   buff[MAX_BUF_NUM];
   char   fileTestName[MAX_TEST_NAME_LENGTH];
   double fileCell;
 
-  cnt = getCount( findOrCreateHash( testName ) );
+  findOrCreateHash( ep, testName );
+  cnt = getCount( ep );
 
   fseek( fp, 0L, SEEK_SET );
   while( fgets( buff, sizeof( buff ), fp ) != NULL ) {
@@ -114,10 +116,9 @@ parseOp( char** argv )
   return op;
 }
 
-ENTRY*
-findOrCreateHash( char* testName )
+void
+findOrCreateHash( ENTRY* ep, char* testName )
 {
-  ENTRY* ep;
   ENTRY e;
   e.key = strdup( testName );
   ep = hsearch( e, FIND );
@@ -128,7 +129,6 @@ findOrCreateHash( char* testName )
     e.data = (void*)0;
     ep = hsearch( e, ENTER );
   }
-  return ep;
 }
 
 int
@@ -137,7 +137,7 @@ getCount( ENTRY* ep )
   int cnt = 0;
   if( ep != NULL )
     cnt = (int)( ep->data );
-  return (int)( ep->data );
+  return cnt;
 }
 
 void
