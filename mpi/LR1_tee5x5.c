@@ -1,8 +1,8 @@
 /*
- * LR1_tee5x5.c
+ * cellml_mpi.c
  *
- *  Created on: 2013/05/24
- *      Author: fr-punzalan
+ *  Created on: 2013/07/18
+ *      Author: Takaya Maehama
  */
 
 #include<stdio.h>
@@ -287,56 +287,20 @@ int main ( int argc , char** argv ) {
 	deltax2 = 1.0;
 	membrane_D = 1.0;
 
+	/*MPIの計算部分指定*/
+	int calcindex = (18-6)/nodenum;
+	int mycalc = 6 + calcindex * myrank + calcindex - 1;
+	if((18-6) % nodenum != 0 && myrank == nodenum - 1) mycalc += (18-6) % nodenum;
+	if(calcindex == 0) {
+		printf("ノード数が多すぎ今のところ対応していません\n");
+		return -1;
+	}
 
 	/* REVISION: replace time with membrane_time TODO: homogenize the time variables */
 	for(membrane_time = 0.000000; ( membrane_time <= 500.000000 ); membrane_time =  ( membrane_time + deltat ) ){
 
 		/*ログカウンタ増加*/
 		logcount++;
-
-		/* REVISION: replace time with membrane_time and correct the indexing TODO: correct the indexing in the getSyntaxProgram */
-		/*if(membrane_time == (double)0.000000){
-			fast_sodium_current_j__n[8] = (double)0.98767124;
-			fast_sodium_current_h__n[8] = (double)0.9804713;
-			slow_inward_current_d__n[8] = (double)0.00316354;
-			time_dependent_potassium_current_X__n[8] = (double)0.16647703;
-			fast_sodium_current_m__n[8] = (double)0.00187018;
-			slow_inward_current_f__n[8] = (double)0.99427859;
-			membrane_V__n[8] = (double)-83.853;
-			slow_inward_current_Cai__n[8] = (double)0.0002;
-			fast_sodium_current_j__n[6] = (double)0.98767124;
-			fast_sodium_current_h__n[6] = (double)0.9804713;
-			time_dependent_potassium_current_X__n[6] = (double)0.16647703;
-			slow_inward_current_d__n[6] = (double)0.00316354;
-			slow_inward_current_f__n[6] = (double)0.99427859;
-			fast_sodium_current_m__n[6] = (double)0.00187018;
-			slow_inward_current_Cai__n[6] = (double)0.0002;
-			membrane_V__n[6] = (double)-83.853;
-			fast_sodium_current_h__n[7] = (double)0.9804713;
-			fast_sodium_current_j__n[7] = (double)0.98767124;
-			time_dependent_potassium_current_X__n[7] = (double)0.16647703;
-			slow_inward_current_d__n[7] = (double)0.00316354;
-			slow_inward_current_f__n[7] = (double)0.99427859;
-			fast_sodium_current_m__n[7] = (double)0.00187018;
-			slow_inward_current_Cai__n[7] = (double)0.0002;
-			membrane_V__n[7] = (double)-83.853;
-			fast_sodium_current_h__n[17] = (double)0.9804713;
-			fast_sodium_current_j__n[17] = (double)0.98767124;
-			fast_sodium_current_m__n[17] = (double)0.00187018;
-			slow_inward_current_f__n[17] = (double)0.99427859;
-			slow_inward_current_d__n[17] = (double)0.00316354;
-			time_dependent_potassium_current_X__n[17] = (double)0.16647703;
-			fast_sodium_current_j__n[12] = (double)0.98767124;
-			fast_sodium_current_h__n[12] = (double)0.9804713;
-			membrane_V__n[17] = (double)-83.853;
-			slow_inward_current_Cai__n[17] = (double)0.0002;
-			fast_sodium_current_m__n[12] = (double)0.00187018;
-			slow_inward_current_f__n[12] = (double)0.99427859;
-			slow_inward_current_d__n[12] = (double)0.00316354;
-			time_dependent_potassium_current_X__n[12] = (double)0.16647703;
-			membrane_V__n[12] = (double)-83.853;
-			slow_inward_current_Cai__n[12] = (double)0.0002;
-		}*/
 
 			//Shortest Calculation Order:0
 		//----------------------------  NO LOOP: start:null end:null ----------------------------//
@@ -352,38 +316,6 @@ int main ( int argc , char** argv ) {
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
 
-		/*
-		 *初期化されていない変数をとりあえず初期化しておきます
-		 */
-		/*
-		background_current_g_b=1.0;
-		background_current_E_b=1.0;
-		time_dependent_potassium_current_g_Kbar=1.0;
-		time_independent_potassium_current_Ko=1.0;
-		membrane_R=1.0;
-		membrane_T=1.0;
-		time_independent_potassium_current_Ki=1.0;
-		time_dependent_potassium_current_PR_NaK=1.0;
-		membrane_F=1.0;
-		time_dependent_potassium_current_Nai=1.0;
-		time_dependent_potassium_current_Nao=1.0;
-		fast_sodium_current_g_Na=1.0;
-		plateau_potassium_current_g_Kp=1.0;
-		membrane_C=1.0;
-		deltax1=1.0;
-		deltax2=1.0;
-		membrane_D=1.0;
-		*/
-
-
-
-		int calcindex = (18-6)/nodenum;
-		int mycalc = 6 + calcindex * myrank + calcindex - 1;
-		if((18-6) % nodenum != 0 && myrank == nodenum - 1) mycalc += (18-6) % nodenum;
-		if(calcindex == 0) {
-			printf("ノード数が多すぎ今のところ対応していません\n");
-			return -1;
-		}
 
 		for(__i = 6 + calcindex * myrank; __i <= mycalc; __i++){
 
@@ -531,29 +463,40 @@ int main ( int argc , char** argv ) {
 					MPI_Recv(&membrane_V__n[__i], 1, MPI_DOUBLE, sourcerank, tag, MPI_COMM_WORLD, &recv_status);
 				}
 			}
-		}
-		else {
+		} else {
 			for(__i = 6 + calcindex * myrank; __i <= mycalc; __i++){
 				MPI_Send(&membrane_V__n[__i], 1, MPI_DOUBLE, root, tag, MPI_COMM_WORLD);
 			}
 		}
 
-		/*recv出来ているか確認*/
+
+
 		if(myrank == root){
-			for(__i=6; __i<=17; __i++){
-				printf("membrane_V__n:%f\n", membrane_V__n[__i]);
+			for(sourcerank = 1; sourcerank < nodenum; sourcerank++){
+				for(__i = 6; __i <= 17; __i++){
+					MPI_Send(&membrane_V__n[__i], 1, MPI_DOUBLE, sourcerank, tag, MPI_COMM_WORLD);
+				}
+			}
+		} else {
+			for(__i = 6; __i <= 17; __i++){
+				MPI_Recv(&membrane_V__n[__i], 1, MPI_DOUBLE, root, tag, MPI_COMM_WORLD, &recv_status);
 			}
 		}
 
-		/*ここが出来ていない?*/
-		/*membrane_V__n[]を各ノードに送信*/
-		MPI_Bcast(&membrane_V__n[0], __MAX_DATA_NUM, MPI_DOUBLE, root, MPI_COMM_WORLD);
+
 
 		/*依存関係有のループ*/
 		for(__i=6; __i<=17; __i++){
 			membrane_V__n1[__i]  =  ( membrane_V__n[__i] + deltat * (  (  (  (  ( - (double)1 )  / membrane_C )  *  ( membrane_I_stim__n[__i] + membrane_i_Na__n[__i] + membrane_i_si__n[__i] + membrane_i_K__n[__i] + membrane_i_K1__n[__i] + membrane_i_Kp__n[__i] + membrane_i_b__n[__i] )  )  +  ( membrane_D *  (  ( membrane_V__n[ ( __i + 1 ) ] +  ( -  ( (double)2 * membrane_V__n[__i] )  )  + membrane_V__n[__i-1] )  /  ( deltax1 * deltax1 )  )  )  +  ( membrane_D *  (  ( membrane_V__n[__i+5] +  ( -  ( (double)2 * membrane_V__n[__i] )  )  + membrane_V__n[__i-5] )  /  ( deltax2 * deltax2 )  )  )  )  * __flag53__n[ ( __i - 6 ) ] ) )  *  ( 1 - __flag53__n[ ( __i - 6 ) ] );
 		}
 		//----------------------------- LOOP END -----------------------------//
+
+		/*正しく計算されているか確認*/
+		if(logcount % 100 == 0){
+			for(__i=6; __i<=17; __i++){
+				printf("membrane_V__n1:%f\n", membrane_V__n1[__i]);
+			}
+		}
 
 		/* REVISION: reassign the results of index n1(n+1) to index n TODO: harmonize with structured relml version */
 		for(__i=6; __i<=17; __i++){
@@ -564,12 +507,6 @@ int main ( int argc , char** argv ) {
 			fast_sodium_current_m__n[__i] = fast_sodium_current_m__n1[__i];
 			slow_inward_current_f__n[__i] = slow_inward_current_f__n1[__i];
 			membrane_V__n[__i] = membrane_V__n1[__i];
-		}
-
-		if (logcount % 100 == 0){
-			for(__i=6; __i<=17; __i++){
-				printf("%f\n", membrane_V__n[__i]);
-			}
 		}
 
 	}
