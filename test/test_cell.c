@@ -7,7 +7,6 @@
 
 #define MAX_FILE_NAME_LENGTH 20
 #define MAX_TEST_NAME_LENGTH 80
-#define MAX_TEST_NUM 2500
 #define MAX_BUF_NUM  100
 
 FILE* fp;
@@ -21,8 +20,8 @@ void
 writeArg( char* testName, double cell, double diff );
 void
 skipTest( char* testName, double cell, double diff );
-ENTRY*
-findOrCreateHash( char* testName );
+void
+findOrCreateHash( ENTRY* ep, char* testName );
 int
 getCount( ENTRY* ep );
 void
@@ -36,7 +35,7 @@ testInit( char** argv , int proc )
   sprintf( fileName, "data/proc%d.dat", proc ) ;
 
   op = parseOp( argv );
-  hcreate( MAX_TEST_NUM );
+  hcreate(1);
   switch( op ) {
     case 't':
       fp = fopen( fileName, "r" );
@@ -71,12 +70,14 @@ testFinish()
 void
 testArg( char* testName, double cell, double diff )
 {
+  static ENTRY* ep;
   int    cnt = 0;
   char   buff[MAX_BUF_NUM];
   char   fileTestName[MAX_TEST_NAME_LENGTH];
   double fileCell;
 
-  cnt = getCount( findOrCreateHash( testName ) );
+  findOrCreateHash( ep, testName );
+  cnt = getCount( ep );
 
   fseek( fp, 0L, SEEK_SET );
   while( fgets( buff, sizeof( buff ), fp ) != NULL ) {
@@ -115,20 +116,19 @@ parseOp( char** argv )
   return op;
 }
 
-ENTRY*
-findOrCreateHash( char* testName )
+void
+findOrCreateHash( ENTRY* ep, char* testName )
 {
-  ENTRY* ep;
   ENTRY e;
   e.key = strdup( testName );
   ep = hsearch( e, FIND );
   if( ep != NULL ) {
     (int)( ep->data )++;
   } else {
+    hcreate(1);
     e.data = (void*)0;
     ep = hsearch( e, ENTER );
   }
-  return ep;
 }
 
 int
@@ -137,7 +137,7 @@ getCount( ENTRY* ep )
   int cnt = 0;
   if( ep != NULL )
     cnt = (int)( ep->data );
-  return (int)( ep->data );
+  return cnt;
 }
 
 void
