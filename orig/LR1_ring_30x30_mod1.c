@@ -4,7 +4,6 @@
  * Generated on: 2013/05/29
  */
 
-<<<<<<< HEAD
 #include<stdio.h>
 #include<stdlib.h>
 #include<math.h>
@@ -176,179 +175,6 @@ int main ( int argc , char** argv ) {
 	__flag105__n = malloc (  ( sizeof( double ) * 858-43+1 )  );
 	__flag118__n = malloc (  ( sizeof( double ) * 858-43+1 )  );
 	__flag121__n = malloc (  ( sizeof( double ) * 858-43+1 )  );
-=======
-#include<stdio.h>
-#include<stdlib.h>
-#include<math.h>
-#define __MAX_TIME_NUM 500.0
-#define __MAX_DATA_NUM 900
-
-
-int main ( int argc , char** argv ) ;
-
-int main ( int argc , char** argv ) {
-
-	double* V0end;
-	double* V1end;
-	double* X0end;
-	double* X1end;
-	double* fast_sodium_current_E_Na__n;
-	double* fast_sodium_current_h__n;
-	double* fast_sodium_current_h__n1;
-	double* fast_sodium_current_h_gate_alpha_h__n;
-	double* fast_sodium_current_h_gate_beta_h__n;
-	double* fast_sodium_current_j__n;
-	double* fast_sodium_current_j__n1;
-	double* fast_sodium_current_j_gate_alpha_j__n;
-	double* fast_sodium_current_j_gate_beta_j__n;
-	double* fast_sodium_current_m__n;
-	double* fast_sodium_current_m__n1;
-	double* fast_sodium_current_m_gate_alpha_m__n;
-	double* fast_sodium_current_m_gate_beta_m__n;
-	/*Revision*/
-//	int i;
-	int n;
-	double* membrane_I_stim__n;
-	double* membrane_V__n;
-	double* membrane_V__n1;
-	double* membrane_i_K1__n;
-	double* membrane_i_K__n;
-	double* membrane_i_Kp__n;
-	double* membrane_i_Na__n;
-	double* membrane_i_b__n;
-	double* membrane_i_si__n;
-	/*Revision*/
-	double membrane_time;
-	double* plateau_potassium_current_E_Kp__n;
-	double* plateau_potassium_current_Kp__n;
-	double* slow_inward_current_Cai__n;
-	double* slow_inward_current_Cai__n1;
-	double* slow_inward_current_E_si__n;
-	double* slow_inward_current_d__n;
-	double* slow_inward_current_d__n1;
-	double* slow_inward_current_d_gate_alpha_d__n;
-	double* slow_inward_current_d_gate_beta_d__n;
-	double* slow_inward_current_f__n;
-	double* slow_inward_current_f__n1;
-	double* slow_inward_current_f_gate_alpha_f__n;
-	double* slow_inward_current_f_gate_beta_f__n;
-	double* time_dependent_potassium_current_E_K__n;
-	double* time_dependent_potassium_current_X__n;
-	double* time_dependent_potassium_current_X__n1;
-	double* time_dependent_potassium_current_X_gate_alpha_X__n;
-	double* time_dependent_potassium_current_X_gate_beta_X__n;
-	double* time_dependent_potassium_current_Xi__n;
-	double* time_dependent_potassium_current_g_K__n;
-	double* time_independent_potassium_current_E_K1__n;
-	double* time_independent_potassium_current_K1_gate_alpha_K1__n;
-	double* time_independent_potassium_current_K1_gate_beta_K1__n;
-	double* time_independent_potassium_current_K1_infinity__n;
-	double* time_independent_potassium_current_g_K1__n;
-	double membrane_D;
-	double membrane_R;
-	double membrane_T;
-	double membrane_F;
-	double membrane_C;
-	double membrane_stim_start;
-	double membrane_stim_end;
-	double membrane_stim_period;
-	double membrane_stim_duration;
-	double membrane_stim_amplitude;
-	double fast_sodium_current_g_Na;
-	double background_current_g_b;
-	double time_dependent_potassium_current_g_Kbar;
-	double time_dependent_potassium_current_Nai;
-	double time_dependent_potassium_current_Nao;
-	double plateau_potassium_current_g_Kp;
-	double background_current_E_b;
-	double time_independent_potassium_current_Ki;
-	double time_independent_potassium_current_Ko;
-	double time_dependent_potassium_current_PR_NaK;
-	double deltat;
-	double deltax1;
-	double deltax2;
-	double* __flag2__n;
-	double* __flag24__n;
-	double* __flag26__n;
-	double* __flag46__n;
-	double* __flag53__n;
-	double* __flag72__n;
-	double* __flag79__n;
-	double* __flag96__n;
-	double* __flag98__n;
-	double* __flag100__n;
-	double* __flag105__n;
-	double* __flag118__n;
-	double* __flag121__n;
-	double* __flag122__n;
-	int __i;
-
-	V0end = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  );
-	V1end = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  );
-	X0end = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  );
-	X1end = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  );
-	fast_sodium_current_E_Na__n = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  );
-	fast_sodium_current_h__n = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  );
-	fast_sodium_current_h__n1 = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  );
-	fast_sodium_current_h_gate_alpha_h__n = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  );
-	fast_sodium_current_h_gate_beta_h__n = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  );
-	fast_sodium_current_j__n = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  );
-	fast_sodium_current_j__n1 = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  );
-	fast_sodium_current_j_gate_alpha_j__n = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  );
-	fast_sodium_current_j_gate_beta_j__n = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  );
-	fast_sodium_current_m__n = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  );
-	fast_sodium_current_m__n1 = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  );
-	fast_sodium_current_m_gate_alpha_m__n = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  );
-	fast_sodium_current_m_gate_beta_m__n = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  );
-	membrane_I_stim__n = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  );
-	membrane_V__n = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  );
-	membrane_V__n1 = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  );
-	membrane_i_K1__n = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  );
-	membrane_i_K__n = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  );
-	membrane_i_Kp__n = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  );
-	membrane_i_Na__n = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  );
-	membrane_i_b__n = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  );
-	membrane_i_si__n = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  );
-	/*Revision*/
-	plateau_potassium_current_E_Kp__n = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  );
-	plateau_potassium_current_Kp__n = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  );
-	slow_inward_current_Cai__n = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  );
-	slow_inward_current_Cai__n1 = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  );
-	slow_inward_current_E_si__n = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  );
-	slow_inward_current_d__n = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  );
-	slow_inward_current_d__n1 = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  );
-	slow_inward_current_d_gate_alpha_d__n = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  );
-	slow_inward_current_d_gate_beta_d__n = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  );
-	slow_inward_current_f__n = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  );
-	slow_inward_current_f__n1 = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  );
-	slow_inward_current_f_gate_alpha_f__n = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  );
-	slow_inward_current_f_gate_beta_f__n = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  );
-	time_dependent_potassium_current_E_K__n = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  );
-	time_dependent_potassium_current_X__n = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  );
-	time_dependent_potassium_current_X__n1 = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  );
-	time_dependent_potassium_current_X_gate_alpha_X__n = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  );
-	time_dependent_potassium_current_X_gate_beta_X__n = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  );
-	time_dependent_potassium_current_Xi__n = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  );
-	time_dependent_potassium_current_g_K__n = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  );
-	time_independent_potassium_current_E_K1__n = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  );
-	time_independent_potassium_current_K1_gate_alpha_K1__n = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  );
-	time_independent_potassium_current_K1_gate_beta_K1__n = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  );
-	time_independent_potassium_current_K1_infinity__n = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  );
-	time_independent_potassium_current_g_K1__n = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  );
-	__flag2__n = malloc (  ( sizeof( double ) * 858-43+1 )  );
-	__flag24__n = malloc (  ( sizeof( double ) * 41-13+1 )  );
-	__flag26__n = malloc (  ( sizeof( double ) * 67-49+1 )  );
-	__flag46__n = malloc (  ( sizeof( double ) * 317-312+1 )  );
-	__flag53__n = malloc (  ( sizeof( double ) * 379-370+1 )  );
-	__flag72__n = malloc (  ( sizeof( double ) * 529-520+1 )  );
-	__flag79__n = malloc (  ( sizeof( double ) * 587-582+1 )  );
-	__flag96__n = malloc (  ( sizeof( double ) * 817-803+1 )  );
-	__flag98__n = malloc (  ( sizeof( double ) * 849-831+1 )  );
-	__flag100__n = malloc (  ( sizeof( double ) * 888-859+1 )  );
-	__flag105__n = malloc (  ( sizeof( double ) * 858-43+1 )  );
-	__flag118__n = malloc (  ( sizeof( double ) * 858-43+1 )  );
-	__flag121__n = malloc (  ( sizeof( double ) * 858-43+1 )  );
->>>>>>> 2d6a2f9d2079bfce5038c230c068da7d4ad9f3e4
 	__flag122__n = malloc (  ( sizeof( double ) * 858-43+1 )  );
 
 	/*Revision: insert the initial values and change value of diffusion constant to 0.1*/
@@ -454,11 +280,7 @@ int main ( int argc , char** argv ) {
 	}
 
 
-<<<<<<< HEAD
 	/*Revision*/
-=======
-	/*Revision*/
->>>>>>> 2d6a2f9d2079bfce5038c230c068da7d4ad9f3e4
 	__flag2__n[49-43] = 0;
 	__flag2__n[50-43] = 0;
 	__flag2__n[51-43] = 0;
@@ -2062,15 +1884,9 @@ int main ( int argc , char** argv ) {
 	double nodeSumX = 0.0;
 	double nodeSumY = 0.0;
 
-<<<<<<< HEAD
 	/*Revision*/
 	for(membrane_time = 0.000000; ( membrane_time <= 500.000000 ) ;membrane_time =  ( membrane_time + deltat ) ){
 
-=======
-	/*Revision*/
-	for(membrane_time = 0.000000; ( membrane_time <= 500.000000 ) ;membrane_time =  ( membrane_time + deltat ) ){
-
->>>>>>> 2d6a2f9d2079bfce5038c230c068da7d4ad9f3e4
 			//Shortest Calculation Order:0
 		//----------------------------  NO LOOP: start:null end:null ----------------------------//
 //			n = (double)100;
@@ -2753,7 +2569,6 @@ int main ( int argc , char** argv ) {
 
 		/* REVISION: insert time counter */
 		timeCount =  ( timeCount + 1 ) ;
-<<<<<<< HEAD
 
 	}
 
@@ -2822,76 +2637,6 @@ int main ( int argc , char** argv ) {
 	free ( __flag105__n ) ;
 	free ( __flag118__n ) ;
 	free ( __flag121__n ) ;
-=======
-
-	}
-
-	free ( V0end ) ;
-	free ( V1end ) ;
-	free ( X0end ) ;
-	free ( X1end ) ;
-	free ( fast_sodium_current_E_Na__n ) ;
-	free ( fast_sodium_current_h__n ) ;
-	free ( fast_sodium_current_h__n1 ) ;
-	free ( fast_sodium_current_h_gate_alpha_h__n ) ;
-	free ( fast_sodium_current_h_gate_beta_h__n ) ;
-	free ( fast_sodium_current_j__n ) ;
-	free ( fast_sodium_current_j__n1 ) ;
-	free ( fast_sodium_current_j_gate_alpha_j__n ) ;
-	free ( fast_sodium_current_j_gate_beta_j__n ) ;
-	free ( fast_sodium_current_m__n ) ;
-	free ( fast_sodium_current_m__n1 ) ;
-	free ( fast_sodium_current_m_gate_alpha_m__n ) ;
-	free ( fast_sodium_current_m_gate_beta_m__n ) ;
-	/* REVISION: remove free( membrane_time, i and n )*/
-	free ( membrane_I_stim__n ) ;
-	free ( membrane_V__n ) ;
-	free ( membrane_V__n1 ) ;
-	free ( membrane_i_K1__n ) ;
-	free ( membrane_i_K__n ) ;
-	free ( membrane_i_Kp__n ) ;
-	free ( membrane_i_Na__n ) ;
-	free ( membrane_i_b__n ) ;
-	free ( membrane_i_si__n ) ;
-	free ( plateau_potassium_current_E_Kp__n ) ;
-	free ( plateau_potassium_current_Kp__n ) ;
-	free ( slow_inward_current_Cai__n ) ;
-	free ( slow_inward_current_Cai__n1 ) ;
-	free ( slow_inward_current_E_si__n ) ;
-	free ( slow_inward_current_d__n ) ;
-	free ( slow_inward_current_d__n1 ) ;
-	free ( slow_inward_current_d_gate_alpha_d__n ) ;
-	free ( slow_inward_current_d_gate_beta_d__n ) ;
-	free ( slow_inward_current_f__n ) ;
-	free ( slow_inward_current_f__n1 ) ;
-	free ( slow_inward_current_f_gate_alpha_f__n ) ;
-	free ( slow_inward_current_f_gate_beta_f__n ) ;
-	free ( time_dependent_potassium_current_E_K__n ) ;
-	free ( time_dependent_potassium_current_X__n ) ;
-	free ( time_dependent_potassium_current_X__n1 ) ;
-	free ( time_dependent_potassium_current_X_gate_alpha_X__n ) ;
-	free ( time_dependent_potassium_current_X_gate_beta_X__n ) ;
-	free ( time_dependent_potassium_current_Xi__n ) ;
-	free ( time_dependent_potassium_current_g_K__n ) ;
-	free ( time_independent_potassium_current_E_K1__n ) ;
-	free ( time_independent_potassium_current_K1_gate_alpha_K1__n ) ;
-	free ( time_independent_potassium_current_K1_gate_beta_K1__n ) ;
-	free ( time_independent_potassium_current_K1_infinity__n ) ;
-	free ( time_independent_potassium_current_g_K1__n ) ;
-	free ( __flag2__n ) ;
-	free ( __flag24__n ) ;
-	free ( __flag26__n ) ;
-	free ( __flag46__n ) ;
-	free ( __flag53__n ) ;
-	free ( __flag72__n ) ;
-	free ( __flag79__n ) ;
-	free ( __flag96__n ) ;
-	free ( __flag98__n ) ;
-	free ( __flag100__n ) ;
-	free ( __flag105__n ) ;
-	free ( __flag118__n ) ;
-	free ( __flag121__n ) ;
->>>>>>> 2d6a2f9d2079bfce5038c230c068da7d4ad9f3e4
 	free ( __flag122__n ) ;
 
 	/********
@@ -2903,14 +2648,7 @@ int main ( int argc , char** argv ) {
 	* Dependency graph time was 0 s.
 	* Tarjan algorithm time was 0 s.
 	* Loop creation time was 59 s.
-<<<<<<< HEAD
 	*********/
 }
 
 
-=======
-	*********/
-}
-
-
->>>>>>> 2d6a2f9d2079bfce5038c230c068da7d4ad9f3e4
