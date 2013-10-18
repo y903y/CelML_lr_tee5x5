@@ -19,7 +19,9 @@ int main ( int argc , char** argv ) {
 
 	int myrank;
 	int nodenum;
-	MPI_Status recv_status;
+	/*MPI_Isend,Irecv用のリクエスト*/
+	MPI_Request reqs[4];
+	MPI_Status recv_status, status;
 	int tag = 0;
 	int sourcebuf;
 	const int root=0;//rootを親とする
@@ -31,7 +33,7 @@ int main ( int argc , char** argv ) {
 	MPI_Comm_size(MPI_COMM_WORLD,&nodenum);
 
 	/*時間計測用変数*/
-	double st, en;
+	double st, co1, co2, en;
 
 	/*membrane_V__nのtemp*/
 	//double* membrane_V__n_temp;
@@ -1931,9 +1933,25 @@ int main ( int argc , char** argv ) {
 //			i = (double)100;
 		//------------------------------- END -------------------------------//
 
+		/*ノンブロッキング通信部分*/
+		if(myrank == root) {
+			st = MPI_Wtime();
+			MPI_Isend(&membrane_V__n[mycalc-29], 30, MPI_DOUBLE, myrank+1, tag, MPI_COMM_WORLD, &reqs[0]);
+			MPI_Irecv(&membrane_V__n[mycalc+1], 30, MPI_DOUBLE, myrank+1, tag, MPI_COMM_WORLD, &reqs[1]);
+		} else if (myrank != root && myrank != nodenum-1){
+			MPI_Isend(&membrane_V__n[mycalc-29], 30, MPI_DOUBLE, myrank+1, tag, MPI_COMM_WORLD, &reqs[0]);
+			MPI_Isend(&membrane_V__n[sourcebuf], 30, MPI_DOUBLE, myrank-1, tag, MPI_COMM_WORLD, &reqs[1]);
+			MPI_Irecv(&membrane_V__n[sourcebuf-30], 30, MPI_DOUBLE, myrank-1, tag, MPI_COMM_WORLD, &reqs[2]);
+			MPI_Irecv(&membrane_V__n[mycalc+1], 30, MPI_DOUBLE, myrank+1, tag, MPI_COMM_WORLD, &reqs[3]);
+		} else if (myrank == nodenum-1){
+			MPI_Isend(&membrane_V__n[sourcebuf], 30, MPI_DOUBLE, myrank-1, tag, MPI_COMM_WORLD, &reqs[0]);
+			MPI_Irecv(&membrane_V__n[sourcebuf-30], 30, MPI_DOUBLE, myrank-1, tag, MPI_COMM_WORLD, &reqs[1]);
+		}
+
 		/* REVISION: correct the indexing TODO: correct the indexing in the getSyntaxProgram */
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+		if(myrank == root) co1 = MPI_Wtime();
 		for(__i = 43 + calcindex * myrank; __i <= mycalc; __i++){
 
 		//for(__i=43; __i<=858; __i++){
@@ -1961,6 +1979,7 @@ int main ( int argc , char** argv ) {
 			fast_sodium_current_m_gate_alpha_m__n[__i] =  (  (  (  ( (double)0.32 *  ( membrane_V__n[__i] + (double)47.13 )  )  /  ( (double)1 - exp(  (  ( - (double)0.1 )  *  ( membrane_V__n[__i] + (double)47.13 )  )  ) )  )  * __flag2__n[ ( __i - 43 ) ] )  +  ( fast_sodium_current_m_gate_alpha_m__n[__i] *  ( 1 - __flag2__n[ ( __i - 43 ) ] )  )  ) ;
 			fast_sodium_current_h_gate_beta_h__n[__i] =  (  (  (  ( membrane_V__n[__i] <  ( - (double)40 )  )  ?  (  ( (double)3.56 * exp(  ( (double)0.079 * membrane_V__n[__i] )  ) )  +  ( (double)310000 * exp(  ( (double)0.35 * membrane_V__n[__i] )  ) )  )  :  ( (double)1 /  ( (double)0.13 *  ( (double)1 + exp(  (  ( membrane_V__n[__i] + (double)10.66 )  /  ( - (double)11.1 )  )  ) )  )  )  )  * __flag2__n[ ( __i - 43 ) ] )  +  ( fast_sodium_current_h_gate_beta_h__n[__i] *  ( 1 - __flag2__n[ ( __i - 43 ) ] )  )  ) ;
 		}
+		if(myrank == root) co2 = MPI_Wtime();
 		//----------------------------- LOOP END -----------------------------//
 
 		//Shortest Calculation Order:0
@@ -1968,21 +1987,14 @@ int main ( int argc , char** argv ) {
 			//X0end = X0end;
 		//------------------------------- END -------------------------------//
 
-		/*MPI_Send,Recvを用いた双方向通信*/
-		if(myrank == root) {
-			st = MPI_Wtime();
-			MPI_Send(&membrane_V__n[mycalc-29], 30, MPI_DOUBLE, myrank+1, tag, MPI_COMM_WORLD);
-			MPI_Recv(&membrane_V__n[mycalc+1], 30, MPI_DOUBLE, myrank+1, tag, MPI_COMM_WORLD, &recv_status);
-			en = MPI_Wtime();
-		} else if (myrank != root && myrank != nodenum-1){
-			MPI_Recv(&membrane_V__n[sourcebuf-30], 30, MPI_DOUBLE, myrank-1, tag, MPI_COMM_WORLD, &recv_status);
-			MPI_Send(&membrane_V__n[mycalc-29], 30, MPI_DOUBLE, myrank+1, tag, MPI_COMM_WORLD);
-			MPI_Recv(&membrane_V__n[mycalc+1], 30, MPI_DOUBLE, myrank+1, tag, MPI_COMM_WORLD, &recv_status);
-			MPI_Send(&membrane_V__n[sourcebuf], 30, MPI_DOUBLE, myrank-1, tag, MPI_COMM_WORLD);
-		} else if (myrank == nodenum-1){
-			MPI_Recv(&membrane_V__n[sourcebuf-30], 30, MPI_DOUBLE, myrank-1, tag, MPI_COMM_WORLD, &recv_status);
-			MPI_Send(&membrane_V__n[sourcebuf], 30, MPI_DOUBLE, myrank-1, tag, MPI_COMM_WORLD);
+		/*同期部分*/
+		MPI_Wait(&reqs[0], &status);
+		MPI_Wait(&reqs[1], &status);
+		if(myrank != root && myrank != nodenum - 1) {
+			MPI_Wait(&reqs[2], &status);
+			MPI_Wait(&reqs[3], &status);
 		}
+		if(myrank == root) en = MPI_Wtime();
 
 
 		/* REVISION: correct the boundary condition equations (remove unneccessary flags) */
@@ -2516,7 +2528,7 @@ int main ( int argc , char** argv ) {
 		/*通信時間の出力*/
 		/*if(myrank == root){
 			if(timeCount % 100 == 0) {
-				printf("time = %.6f\n", en-st);
+				printf("time = %.6f\n", en-st-co2+co1);
 			}
 		}*/
 

@@ -4,6 +4,8 @@
  * Generated on: 2013/05/29
  */
 
+/*for文の後にIsend, Irecvを発行*/
+
 #include<stdio.h>
 #include<stdlib.h>
 #include<math.h>
@@ -19,7 +21,9 @@ int main ( int argc , char** argv ) {
 
 	int myrank;
 	int nodenum;
-	MPI_Status recv_status;
+	/*MPI_Isend,Irecv用のリクエスト*/
+	MPI_Request reqs[4];
+	MPI_Status recv_status, status;
 	int tag = 0;
 	int sourcebuf;
 	const int root=0;//rootを親とする
@@ -1968,21 +1972,29 @@ int main ( int argc , char** argv ) {
 			//X0end = X0end;
 		//------------------------------- END -------------------------------//
 
-		/*MPI_Send,Recvを用いた双方向通信*/
+		/*ノンブロッキング通信部分*/
 		if(myrank == root) {
 			st = MPI_Wtime();
-			MPI_Send(&membrane_V__n[mycalc-29], 30, MPI_DOUBLE, myrank+1, tag, MPI_COMM_WORLD);
-			MPI_Recv(&membrane_V__n[mycalc+1], 30, MPI_DOUBLE, myrank+1, tag, MPI_COMM_WORLD, &recv_status);
-			en = MPI_Wtime();
+			MPI_Isend(&membrane_V__n[mycalc-29], 30, MPI_DOUBLE, myrank+1, tag, MPI_COMM_WORLD, &reqs[0]);
+			MPI_Irecv(&membrane_V__n[mycalc+1], 30, MPI_DOUBLE, myrank+1, tag, MPI_COMM_WORLD, &reqs[1]);
 		} else if (myrank != root && myrank != nodenum-1){
-			MPI_Recv(&membrane_V__n[sourcebuf-30], 30, MPI_DOUBLE, myrank-1, tag, MPI_COMM_WORLD, &recv_status);
-			MPI_Send(&membrane_V__n[mycalc-29], 30, MPI_DOUBLE, myrank+1, tag, MPI_COMM_WORLD);
-			MPI_Recv(&membrane_V__n[mycalc+1], 30, MPI_DOUBLE, myrank+1, tag, MPI_COMM_WORLD, &recv_status);
-			MPI_Send(&membrane_V__n[sourcebuf], 30, MPI_DOUBLE, myrank-1, tag, MPI_COMM_WORLD);
+			MPI_Isend(&membrane_V__n[mycalc-29], 30, MPI_DOUBLE, myrank+1, tag, MPI_COMM_WORLD, &reqs[0]);
+			MPI_Isend(&membrane_V__n[sourcebuf], 30, MPI_DOUBLE, myrank-1, tag, MPI_COMM_WORLD, &reqs[1]);
+			MPI_Irecv(&membrane_V__n[sourcebuf-30], 30, MPI_DOUBLE, myrank-1, tag, MPI_COMM_WORLD, &reqs[2]);
+			MPI_Irecv(&membrane_V__n[mycalc+1], 30, MPI_DOUBLE, myrank+1, tag, MPI_COMM_WORLD, &reqs[3]);
 		} else if (myrank == nodenum-1){
-			MPI_Recv(&membrane_V__n[sourcebuf-30], 30, MPI_DOUBLE, myrank-1, tag, MPI_COMM_WORLD, &recv_status);
-			MPI_Send(&membrane_V__n[sourcebuf], 30, MPI_DOUBLE, myrank-1, tag, MPI_COMM_WORLD);
+			MPI_Isend(&membrane_V__n[sourcebuf], 30, MPI_DOUBLE, myrank-1, tag, MPI_COMM_WORLD, &reqs[0]);
+			MPI_Irecv(&membrane_V__n[sourcebuf-30], 30, MPI_DOUBLE, myrank-1, tag, MPI_COMM_WORLD, &reqs[1]);
 		}
+
+		/*同期部分*/
+		MPI_Wait(&reqs[0], &status);
+		MPI_Wait(&reqs[1], &status);
+		if(myrank != root && myrank != nodenum - 1) {
+			MPI_Wait(&reqs[2], &status);
+			MPI_Wait(&reqs[3], &status);
+		}
+		if(myrank == root) en = MPI_Wtime();
 
 
 		/* REVISION: correct the boundary condition equations (remove unneccessary flags) */
