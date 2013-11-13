@@ -23,8 +23,10 @@ int main ( int argc , char** argv ) {
 	int myrank;
 	/*ノード数を保持する変数*/
 	int nodenum;
+	/*MPI_Isend,Irecv用のリクエスト*/
+	MPI_Request reqs[4];
 	/*MPIのステータスを保持する変数*/
-	MPI_Status recv_status;
+	MPI_Status recv_status, status;
 	/*通信のタグ識別子を保持する変数*/
 	int tag = 0;
 	/*計算範囲*/
@@ -58,8 +60,12 @@ int main ( int argc , char** argv ) {
 	sourcebuf = myrank * calcindex;
 
 	/*membrane_V__nのtemp*/
-	double* membrane_V__n_temp;
+	//double* membrane_V__n_temp;
 
+	double* V0end;
+	double* V1end;
+	double* X0end;
+	double* X1end;
 	double* fast_sodium_current_E_Na__n;
 	double* fast_sodium_current_h__n;
 	double* fast_sodium_current_h__n1;
@@ -74,6 +80,8 @@ int main ( int argc , char** argv ) {
 	double* fast_sodium_current_m_gate_alpha_m__n;
 	double* fast_sodium_current_m_gate_beta_m__n;
 	/*Revision*/
+//	int i;
+//	int n;
 	double* membrane_I_stim__n;
 	double* membrane_V__n;
 	double* membrane_V__n1;
@@ -136,8 +144,12 @@ int main ( int argc , char** argv ) {
 	int __i;
 
 	/*membrane_V__nのtempの確保*/
-	membrane_V__n_temp = malloc (  ( sizeof( double ) * __MAX_MATERIAL_NUM)  );
+	//membrane_V__n_temp = malloc (  ( sizeof( double ) * __MAX_MATERIAL_NUM)  );
 
+	V0end = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  );
+	V1end = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  );
+	X0end = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  );
+	X1end = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  );
 	fast_sodium_current_E_Na__n = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  );
 	fast_sodium_current_h__n = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  );
 	fast_sodium_current_h__n1 = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  );
@@ -243,7 +255,35 @@ int main ( int argc , char** argv ) {
 	/*Revision*/
 	for(membrane_time = 0.000000; ( membrane_time <= 500.000000 ) ;membrane_time =  ( membrane_time + deltat ) ){
 
+
+		//----------------------------  NO LOOP: start:null end:null ----------------------------//
+//			n = (double)100;
+
+
+
+		//----------------------------  NO LOOP: start:null end:null ----------------------------//
+//			i = (double)100;
+
+
+		/*ノンブロッキング通信部分*/
+		if(myrank == root) {
+			//st = MPI_Wtime();
+			MPI_Isend(&membrane_V__n[U[mycalc+1]], (mycalc-U[mycalc+1])+1, MPI_DOUBLE, myrank+1, tag, MPI_COMM_WORLD, &reqs[0]);
+			MPI_Irecv(&membrane_V__n[mycalc+1], D[mycalc]-mycalc, MPI_DOUBLE, myrank+1, tag, MPI_COMM_WORLD, &reqs[1]);
+		} else if (myrank != root && myrank != nodenum-1){
+			MPI_Isend(&membrane_V__n[U[mycalc+1]], (mycalc-U[mycalc+1])+1, MPI_DOUBLE, myrank+1, tag, MPI_COMM_WORLD, &reqs[0]);
+			MPI_Isend(&membrane_V__n[sourcebuf], (D[sourcebuf-1]-sourcebuf)+1, MPI_DOUBLE, myrank-1, tag, MPI_COMM_WORLD, &reqs[1]);
+			MPI_Irecv(&membrane_V__n[U[sourcebuf]], sourcebuf-U[sourcebuf], MPI_DOUBLE, myrank-1, tag, MPI_COMM_WORLD, &reqs[2]);
+			MPI_Irecv(&membrane_V__n[mycalc+1], D[mycalc]-mycalc, MPI_DOUBLE, myrank+1, tag, MPI_COMM_WORLD, &reqs[3]);
+		} else if (myrank == nodenum-1){
+			MPI_Isend(&membrane_V__n[sourcebuf], (D[sourcebuf-1]-sourcebuf)+1, MPI_DOUBLE, myrank-1, tag, MPI_COMM_WORLD, &reqs[0]);
+			MPI_Irecv(&membrane_V__n[U[sourcebuf]], sourcebuf-U[sourcebuf], MPI_DOUBLE, myrank-1, tag, MPI_COMM_WORLD, &reqs[1]);
+		}
+
+
+
 		/* REVISION: correct the indexing TODO: put the correct range of morphology nodes */
+
 		//---------------------------- LOOP ----------------------------//
 		for(__i = calcindex * myrank; __i <= mycalc; __i++){
 		//for(__i=0; __i<__MAX_MATERIAL_NUM; __i++){
@@ -272,17 +312,19 @@ int main ( int argc , char** argv ) {
 			fast_sodium_current_h_gate_beta_h__n[__i] =  (  ( membrane_V__n[__i] <  ( - (double)40 )  )  ?  (  ( (double)3.56 * exp(  ( (double)0.079 * membrane_V__n[__i] )  ) )  +  ( (double)310000 * exp(  ( (double)0.35 * membrane_V__n[__i] )  ) )  )  :  ( (double)1 /  ( (double)0.13 *  ( (double)1 + exp(  (  ( membrane_V__n[__i] + (double)10.66 )  /  ( - (double)11.1 )  )  ) )  )  )  ) ;
 		}
 
-
-		/*MPI_Allgather関数でmembrane_V__nを全ノードに持たせる*/
-		//if(myrank == root) st = MPI_Wtime();
-		MPI_Allgather(&membrane_V__n[sourcebuf], calcindex, MPI_DOUBLE, &membrane_V__n_temp[0], calcindex, MPI_DOUBLE, MPI_COMM_WORLD);
+		/*同期部分*/
+		MPI_Wait(&reqs[0], &status);
+		MPI_Wait(&reqs[1], &status);
+		if(myrank != root && myrank != nodenum - 1) {
+			MPI_Wait(&reqs[2], &status);
+			MPI_Wait(&reqs[3], &status);
+		}
 		//if(myrank == root) en = MPI_Wtime();
 
-		for(__i=0; __i<516; __i++){
-			 membrane_V__n[__i] = membrane_V__n_temp[__i] ;
-		}
 
-		MPI_Bcast(&membrane_V__n[((__MAX_MATERIAL_NUM / nodenum) * nodenum) + (__MAX_MATERIAL_NUM % nodenum)], __MAX_MATERIAL_NUM % nodenum, MPI_DOUBLE, nodenum - 1, MPI_COMM_WORLD);
+
+		//----------------------------  NO LOOP: start:null end:null ----------------------------//
+		//X0end = X0end;
 
 		/* REVISION: correct the boundary condition equations (remove unneccessary flags) */
 
@@ -413,6 +455,23 @@ int main ( int argc , char** argv ) {
 			membrane_V__n[__i] = membrane_V__n[ ( U[__i] ) ] ;
 		}
 
+
+
+		//----------------------------  NO LOOP: start:null end:null ----------------------------//
+		//X1end = X1end;
+
+
+
+		//----------------------------  NO LOOP: start:null end:null ----------------------------//
+		//V0end = V0end;
+
+
+
+		//----------------------------  NO LOOP: start:null end:null ----------------------------//
+		//V1end = V1end;
+
+
+
 		//----------------------------  NO LOOP: start:null end:null ----------------------------//
 		//membrane_time = membrane_time;
 
@@ -519,6 +578,10 @@ int main ( int argc , char** argv ) {
 
 	}
 
+	free ( V0end ) ;
+	free ( V1end ) ;
+	free ( X0end ) ;
+	free ( X1end ) ;
 	free ( fast_sodium_current_E_Na__n ) ;
 	free ( fast_sodium_current_h__n ) ;
 	free ( fast_sodium_current_h__n1 ) ;
