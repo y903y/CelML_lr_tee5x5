@@ -631,11 +631,12 @@ int main ( int argc , char** argv ) {
 
 
 		/* REVISION: print current time */
-		if (myrank == root) {
+		/*if (myrank == root) {
 			if (timeCount % ((int)(100)) == 0) {
 				printf("%f ", membrane_time);
 			}
-		}
+		}*/
+
 		/* REVISION: reassign the results of index n1(n+1) to index n TODO: harmonize with structured relml version */
 		for(__i = calcindex * myrank; __i <= mycalc; __i++){
 		//for(__i=0; __i<__MAX_MATERIAL_NUM; __i++){
@@ -648,35 +649,35 @@ int main ( int argc , char** argv ) {
 			membrane_V__n[__i] = membrane_V__n1[__i];
 
 			/* REVISION: print a partial part of results (opposite ends of the morphology) */
-			if (myrank == root){
+			/*if (myrank == root){
 				if (timeCount % ((int)(100)) == 0) {
 					if ( __i>=980 && __i<=985) {
 						printf("%f ", membrane_V__n1[__i]);
 					}
-					/*if ( __i==3000 ) {
+					if ( __i==3000 ) {
 						printf(" <--- stim start : array end ---> ");
 					}
 					if ( __i>=7840 && __i<=7842) {
 						printf("%f ", membrane_V__n1[__i]);
-					}*/
+					}
 				}
-			}
+			}*/
 
 		}
 
 		/* REVISION: print a partial part of results */
-		if (myrank == root) {
+		/*if (myrank == root) {
 			if (timeCount % ((int)(100)) == 0) {
 				printf("\n");
 			}
-		}
+		}*/
 
 		/*通信時間計測出力*/
-		if(myrank == root){
+		/*if(myrank == root){
 			if(timeCount % 100 == 0) {
-				printf("time = %.6f\n", en-st);
+				printf("%.6f\n", en-st);
 			}
-		}
+		}*/
 
 		/* REVISION: insert time counter */
 		timeCount =  ( timeCount + 1 ) ;
