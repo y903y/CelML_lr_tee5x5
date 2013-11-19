@@ -573,6 +573,13 @@ int main ( int argc , char** argv ) {
 			}
 		}
 
+		/*通信時間計測出力*/
+		/*if(myrank == root){
+			if(timeCount % 100 == 0) {
+				printf("time = %.6f\n", en-st);
+			}
+		}*/
+
 		/* REVISION: insert time counter */
 		timeCount =  ( timeCount + 1 ) ;
 

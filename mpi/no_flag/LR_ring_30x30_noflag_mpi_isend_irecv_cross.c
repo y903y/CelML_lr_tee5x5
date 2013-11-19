@@ -514,7 +514,7 @@ int main ( int argc , char** argv ) {
 				membrane_V__n[nodeindex0[__i]] = membrane_V__n1[nodeindex0[__i]];
 
 				if (timeCount % ((int)(100)) == 0) {
-					if ( __i>=0 && __i<=2) {
+					if ( __i>=0 && __i<=1) {
 						printf("%f ", membrane_V__n1[__i]);
 					}
 					/*if ( __i==3 ) {
