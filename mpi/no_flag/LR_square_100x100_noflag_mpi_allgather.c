@@ -337,7 +337,7 @@ int main ( int argc , char** argv ) {
 		MPI_Allgather(&membrane_V__n[sourcebuf], calcindex, MPI_DOUBLE, &membrane_V__n_temp[0], calcindex, MPI_DOUBLE, MPI_COMM_WORLD);
 		//if(myrank == root) en = MPI_Wtime();
 
-		for(__i=0; __i<516; __i++){
+		for(__i=0; __i<__MAX_MATERIAL_NUM; __i++){
 			 membrane_V__n[__i] = membrane_V__n_temp[__i] ;
 		}
 
