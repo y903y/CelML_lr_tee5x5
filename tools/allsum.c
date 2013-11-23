@@ -10,9 +10,12 @@ int main() {
 	a =(double *) malloc(sizeof(double) * MAX_DATA);
 	for(i = 0; i < MAX_DATA; i++) scanf("%lf", &a[i]);
 
-	for(i = 0; i < MAX_DATA; i++) ans += a[i];
+	printf("first time:%6f\n", a[0]);
+	printf("second time:%6f\n", a[1]);
 
-	printf("%6f\n", ans);
+	for(i = 1; i < MAX_DATA; i++) ans += a[i];
+	printf("total time:%6f\n", ans+a[0]);
+	printf("average time:%6f\n", ans/(MAX_DATA-1));
 
 	free(a);
 	return 0;

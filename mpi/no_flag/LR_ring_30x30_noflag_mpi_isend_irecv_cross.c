@@ -1,4 +1,4 @@
- /*
+/*
  * LR1_FTCS_30x30.c
  *
  * Generated on: 2013/05/29
@@ -31,21 +31,19 @@ int main ( int argc , char** argv ) {
 	int tag = 0;
 	/*計算範囲*/
 	int calcindex;
-	/*各ノードの演算を行う範囲の最初の添字を保持する変数*/
-	//int sourcebuf;
-	/*各ノードの演算を行う範囲の最後の添字を保持する変数*/
-	//int mycalc;
 	/*rootを親ノードとして指定*/
 	const int root=0;
-
 	/*送受信用の配列を定義*/
 	double sendarray1[8] = {0};
 	double sendarray2[8] = {0};
 	double recvarray1[8] = {0};
 	double recvarray2[8] = {0};
-
 	/*時間計測用変数*/
 	double st, en, con1, con2;
+
+	if(myrank == 0) calcindex = 128;
+	else calcindex = 130;
+
 
 	/*MPI 初期化*/
 	MPI_Init(&argc,&argv);
@@ -72,8 +70,8 @@ int main ( int argc , char** argv ) {
 	double* fast_sodium_current_m_gate_alpha_m__n;
 	double* fast_sodium_current_m_gate_beta_m__n;
 	/*Revision*/
-//	int i;
-//	int n;
+	//	int i;
+	//	int n;
 	double* membrane_I_stim__n;
 	double* membrane_V__n;
 	double* membrane_V__n1;
@@ -215,7 +213,7 @@ int main ( int argc , char** argv ) {
 
 	/* REVISION: initialize this special variable. TODO: indicates that arithvars in all nodes should be initialized also (set to zero?) */
 	for (__i=0; __i<__MAX_DATA_NUM; __i++) {
-	  time_independent_potassium_current_K1_gate_beta_K1__n[__i] = 1.0;
+		time_independent_potassium_current_K1_gate_beta_K1__n[__i] = 1.0;
 	}
 
 	/*Revision: Put the initial values outside the time loop N. TODO: include in a loop.
@@ -247,10 +245,6 @@ int main ( int argc , char** argv ) {
 	int nodeindex2[130] = {258, 259, 260, 261, 262, 263, 264, 265, 274, 275, 276, 277, 278, 279, 280, 281, 282, 292, 293, 294, 295, 296, 297, 298, 299, 300, 310, 311, 312, 313, 314, 315, 316, 317, 318, 319, 330, 331, 332, 333, 334, 335, 336, 337, 338, 339, 350, 351, 352, 353, 354, 355, 356, 357, 358, 359, 360, 361, 374, 375, 376, 377, 378, 379, 380, 381, 382, 383, 384, 385, 398, 399, 400, 401, 402, 403, 404, 405, 406, 407, 408, 409, 422, 423, 424, 425, 426, 427, 428, 429, 430, 431, 432, 444, 445, 446, 447, 448, 449, 450, 451, 452, 453, 464, 465, 466, 467, 468, 469, 470, 471, 472, 482, 483, 484, 485, 486, 487, 488, 489, 498, 499, 500, 501, 502, 503, 510, 511, 512, 513};
 	int nodeindex3[130] = {266, 267, 268, 269, 270, 271, 272, 273, 283, 284, 285, 286, 287, 288, 289, 290, 291, 301, 302, 303, 304, 305, 306, 307, 308, 309, 320, 321, 322, 323, 324, 325, 326, 327, 328, 329, 340, 341, 342, 343, 344, 345, 346, 347, 348, 349, 362, 363, 364, 365, 366, 367, 368, 369, 370, 371, 372, 373, 386, 387, 388, 389, 390, 391, 392, 393, 394, 395, 396, 397, 410, 411, 412, 413, 414, 415, 416, 417, 418, 419, 420, 421, 433, 434, 435, 436, 437, 438, 439, 440, 441, 442, 443, 454, 455, 456, 457, 458, 459, 460, 461, 462, 463, 473, 474, 475, 476, 477, 478, 479, 480, 481, 490, 491, 492, 493, 494, 495, 496, 497, 504, 505, 506, 507, 508, 509, 514, 515, 516, 517};
 
-	if(myrank == 0) calcindex = 128;
-	else calcindex = 130;
-
-
 	for(membrane_time = 0.000000; ( membrane_time <= 500.000000 ) ;membrane_time =  ( membrane_time + deltat ) ){
 		/*Revision*/
 		if(myrank == root){
@@ -275,7 +269,6 @@ int main ( int argc , char** argv ) {
 			MPI_Irecv(&recvarray2[0], 8, MPI_DOUBLE, 2, tag, MPI_COMM_WORLD, &reqs[3]);
 
 			/* REVISION: correct the indexing TODO: put the correct range of morphology nodes */
-			//---------------------------- LOOP ----------------------------//
 			//con1 = MPI_Wtime();
 			for(__i = 0; __i < calcindex ; __i++){
 				slow_inward_current_f_gate_beta_f__n[nodeindex0[__i]] =  (  ( (double)0.0065 * exp(  (  ( - (double)0.02 )  *  ( membrane_V__n[nodeindex0[__i]] + (double)30 )  )  ) )  /  ( (double)1 + exp(  (  ( - (double)0.2 )  *  ( membrane_V__n[nodeindex0[__i]] + (double)30 )  )  ) )  ) ;
@@ -287,10 +280,8 @@ int main ( int argc , char** argv ) {
 				membrane_i_b__n[nodeindex0[__i]] =  ( background_current_g_b *  ( membrane_V__n[nodeindex0[__i]] - background_current_E_b )  ) ;
 				fast_sodium_current_j_gate_beta_j__n[nodeindex0[__i]] =  (  ( membrane_V__n[nodeindex0[__i]] <  ( - (double)40 )  )  ?  (  ( (double)0.1212 * exp(  (  ( - (double)0.01052 )  * membrane_V__n[nodeindex0[__i]] )  ) )  /  ( (double)1 + exp(  (  ( - (double)0.1378 )  *  ( membrane_V__n[nodeindex0[__i]] + (double)40.14 )  )  ) )  )  :  (  ( (double)0.3 * exp(  (  ( - (double)0.0000002535 )  * membrane_V__n[nodeindex0[__i]] )  ) )  /  ( (double)1 + exp(  (  ( - (double)0.1 )  *  ( membrane_V__n[nodeindex0[__i]] + (double)32 )  )  ) )  )  ) ;
 				time_dependent_potassium_current_g_K__n[nodeindex0[__i]] =  ( time_dependent_potassium_current_g_Kbar * sqrt(  ( time_independent_potassium_current_Ko / (double)5.4 )  ) ) ;
-
 				time_dependent_potassium_current_E_K__n[nodeindex0[__i]] =  (  (  ( membrane_R * membrane_T )  / membrane_F )  * log(  (  ( time_independent_potassium_current_Ko +  ( time_dependent_potassium_current_PR_NaK * time_dependent_potassium_current_Nao )  )  /  ( time_independent_potassium_current_Ki +  ( time_dependent_potassium_current_PR_NaK * time_dependent_potassium_current_Nai )  )  )  ) ) ;
-
-				time_dependent_potassium_current_X_gate_alpha_X__n[nodeindex0[__i]] =  (  ( (double)0.0005 * exp(  ( (double)0.083 *  ( membrane_V__n[nodeindex0[__i]] + (double)50 )  )  ) )  /  ( (double)1 + exp(  ( (double)0.057 *  ( membrane_V__n[__i] + (double)50 )  )  ) )  ) ;
+				time_dependent_potassium_current_X_gate_alpha_X__n[nodeindex0[__i]] =  (  ( (double)0.0005 * exp(  ( (double)0.083 *  ( membrane_V__n[nodeindex0[__i]] + (double)50 )  )  ) )  /  ( (double)1 + exp(  ( (double)0.057 *  ( membrane_V__n[nodeindex0[__i]] + (double)50 )  )  ) )  ) ;
 				time_dependent_potassium_current_X_gate_beta_X__n[nodeindex0[__i]] =  (  ( (double)0.0013 * exp(  (  ( - (double)0.06 )  *  ( membrane_V__n[nodeindex0[__i]] + (double)20 )  )  ) )  /  ( (double)1 + exp(  (  ( - (double)0.04 )  *  ( membrane_V__n[nodeindex0[__i]] + (double)20 )  )  ) )  ) ;
 				time_dependent_potassium_current_Xi__n[nodeindex0[__i]] =  (  ( membrane_V__n[nodeindex0[__i]] >  ( - (double)100 )  )  ?  (  ( (double)2.837 *  ( exp(  ( (double)0.04 *  ( membrane_V__n[nodeindex0[__i]] + (double)77 )  )  ) - (double)1 )  )  /  (  ( membrane_V__n[nodeindex0[__i]] + (double)77 )  * exp(  ( (double)0.04 *  ( membrane_V__n[nodeindex0[__i]] + (double)35 )  )  ) )  )  : (double)1 ) ;
 				time_independent_potassium_current_g_K1__n[nodeindex0[__i]] =  ( (double)0.6047 * sqrt(  ( time_independent_potassium_current_Ko / (double)5.4 )  ) ) ;
@@ -333,9 +324,9 @@ int main ( int argc , char** argv ) {
 				membrane_V__n[__i] = membrane_V__n[ ( D[__i] ) ] ;
 			}
 			//---------------------------- NODE 301 D[] ----------------------------//
-				membrane_V__n[550] =  membrane_V__n[D[550]] ;
+			membrane_V__n[550] =  membrane_V__n[D[550]] ;
 			//---------------------------- NODE 328 D[] ----------------------------//
-				membrane_V__n[555] =  membrane_V__n[D[555]] ;
+			membrane_V__n[555] =  membrane_V__n[D[555]] ;
 			//---------------------------- NODE 459 - 470 D[] ----------------------------//
 			for(__i=573; __i<=574; __i++){
 				membrane_V__n[__i] = membrane_V__n[ ( D[__i] ) ] ;
@@ -357,66 +348,63 @@ int main ( int argc , char** argv ) {
 				membrane_V__n[__i] =  membrane_V__n[ ( D[__i] ) ] ;
 			}
 
-
 			//---------------------------- NODE 212 R[] ----------------------------//
-				membrane_V__n[542] =  membrane_V__n[R[542]] ;
+			membrane_V__n[542] =  membrane_V__n[R[542]] ;
 			//---------------------------- NODE 271 R[] ----------------------------//
-				membrane_V__n[546] =  membrane_V__n[R[546]] ;
+			membrane_V__n[546] =  membrane_V__n[R[546]] ;
 			//---------------------------- NODE 330 R[] ----------------------------//
-				membrane_V__n[556] =  membrane_V__n[R[556]] ;
+			membrane_V__n[556] =  membrane_V__n[R[556]] ;
 			//---------------------------- NODE 360 R[] ----------------------------//
-				membrane_V__n[560] =  membrane_V__n[R[560]] ;
+			membrane_V__n[560] =  membrane_V__n[R[560]] ;
 			//---------------------------- NODE 390 R[] ----------------------------//
-				membrane_V__n[564] =  membrane_V__n[R[564]] ;
+			membrane_V__n[564] =  membrane_V__n[R[564]] ;
 			//---------------------------- NODE 409 R[] ----------------------------//
-				membrane_V__n[566] =  membrane_V__n[R[566]] ;
+			membrane_V__n[566] =  membrane_V__n[R[566]] ;
 			//---------------------------- NODE 420 R[] ----------------------------//
-				membrane_V__n[568] =  membrane_V__n[R[568]] ;
+			membrane_V__n[568] =  membrane_V__n[R[568]] ;
 			//---------------------------- NODE 450 R[] ----------------------------//
-				membrane_V__n[572] =  membrane_V__n[R[572]] ;
+			membrane_V__n[572] =  membrane_V__n[R[572]] ;
 			//---------------------------- NODE 480 R[] ----------------------------//
-				membrane_V__n[576] =  membrane_V__n[R[576]] ;
+			membrane_V__n[576] =  membrane_V__n[R[576]] ;
 			//---------------------------- NODE 499 R[]----------------------------//
-				membrane_V__n[578] =  membrane_V__n[R[578]] ;
+			membrane_V__n[578] =  membrane_V__n[R[578]] ;
 			//---------------------------- NODE 510 R[] ----------------------------//
-				membrane_V__n[580] =  membrane_V__n[R[580]] ;
+			membrane_V__n[580] =  membrane_V__n[R[580]] ;
 			//---------------------------- NODE 540 R[]----------------------------//
-				membrane_V__n[584] =  membrane_V__n[R[584]] ;
+			membrane_V__n[584] =  membrane_V__n[R[584]] ;
 			//---------------------------- NODE 601 R[] ----------------------------//
-				membrane_V__n[594] =  membrane_V__n[R[594]] ;
+			membrane_V__n[594] =  membrane_V__n[R[594]] ;
 			//---------------------------- NODE 662 R[] ----------------------------//
-				membrane_V__n[600] =  membrane_V__n[R[600]] ;
-
+			membrane_V__n[600] =  membrane_V__n[R[600]] ;
 
 			//---------------------------- NODE 237 L[] ----------------------------//
-				membrane_V__n[543] =  membrane_V__n[L[543]] ;
+			membrane_V__n[543] =  membrane_V__n[L[543]] ;
 			//---------------------------- NODE 298 L[] ----------------------------//
-				membrane_V__n[549] =  membrane_V__n[L[549]] ;
+			membrane_V__n[549] =  membrane_V__n[L[549]] ;
 			//---------------------------- NODE 359 L[] ----------------------------//
-				membrane_V__n[559] =  membrane_V__n[L[559]] ;
+			membrane_V__n[559] =  membrane_V__n[L[559]] ;
 			//---------------------------- NODE 389 L[] ----------------------------//
-				membrane_V__n[563] =  membrane_V__n[L[563]] ;
+			membrane_V__n[563] =  membrane_V__n[L[563]] ;
 			//---------------------------- NODE 400 L[] ----------------------------//
-				membrane_V__n[565] =  membrane_V__n[L[565]] ;
+			membrane_V__n[565] =  membrane_V__n[L[565]] ;
 			//---------------------------- NODE 419 L[] ----------------------------//
-				membrane_V__n[567] =  membrane_V__n[L[567]] ;
+			membrane_V__n[567] =  membrane_V__n[L[567]] ;
 			//---------------------------- NODE 449 L[] ----------------------------//
-				membrane_V__n[571] =  membrane_V__n[L[571]] ;
+			membrane_V__n[571] =  membrane_V__n[L[571]] ;
 			//---------------------------- NODE 479 L[] ----------------------------//
-				membrane_V__n[575] =  membrane_V__n[L[575]] ;
+			membrane_V__n[575] =  membrane_V__n[L[575]] ;
 			//---------------------------- NODE 490 L[] ----------------------------//
-				membrane_V__n[577] =  membrane_V__n[L[577]] ;
+			membrane_V__n[577] =  membrane_V__n[L[577]] ;
 			//---------------------------- NODE 509 L[] ----------------------------//
-				membrane_V__n[579] =  membrane_V__n[L[579]] ;
+			membrane_V__n[579] =  membrane_V__n[L[579]] ;
 			//---------------------------- NODE 539 L[] ----------------------------//
-				membrane_V__n[583] =  membrane_V__n[L[583]] ;
+			membrane_V__n[583] =  membrane_V__n[L[583]] ;
 			//---------------------------- NODE 569 L[] ----------------------------//
-				membrane_V__n[587] =  membrane_V__n[L[587]] ;
+			membrane_V__n[587] =  membrane_V__n[L[587]] ;
 			//---------------------------- NODE 628 L[] ----------------------------//
-				membrane_V__n[597] =  membrane_V__n[L[597]] ;
+			membrane_V__n[597] =  membrane_V__n[L[597]] ;
 			//---------------------------- NODE 687 L[] ----------------------------//
-				membrane_V__n[601] =  membrane_V__n[L[601]] ;
-
+			membrane_V__n[601] =  membrane_V__n[L[601]] ;
 
 			//---------------------------- NODE 284 - 285 U[] ----------------------------//
 			for(__i=547; __i<=548; __i++){
@@ -439,9 +427,9 @@ int main ( int argc , char** argv ) {
 				membrane_V__n[__i] = membrane_V__n[ ( U[__i] ) ] ;
 			}
 			//---------------------------- NODE 571 U[] ----------------------------//
-				membrane_V__n[588] =  membrane_V__n[U[588]] ;
+			membrane_V__n[588] =  membrane_V__n[U[588]] ;
 			//---------------------------- NODE 598 U[] ----------------------------//
-				membrane_V__n[593] =  membrane_V__n[U[593]] ;
+			membrane_V__n[593] =  membrane_V__n[U[593]] ;
 			//---------------------------- NODE 632 - 657 U[] ----------------------------//
 			for(__i=598; __i<=599; __i++){
 				membrane_V__n[__i] = membrane_V__n[ ( U[__i] ) ] ;
@@ -453,7 +441,6 @@ int main ( int argc , char** argv ) {
 
 			/* REVISION: added the equation with differential equations TODO: revise the stimulation equation */
 			//Shortest Calculation Order:1
-			//---------------------------- LOOP ----------------------------//
 			for(__i = 0; __i < calcindex ; __i++){
 				slow_inward_current_d__n1[nodeindex0[__i]] =  ( slow_inward_current_d__n[nodeindex0[__i]] + deltat * (  ( slow_inward_current_d_gate_alpha_d__n[nodeindex0[__i]] *  ( (double)1 - slow_inward_current_d__n[nodeindex0[__i]] )  )  -  ( slow_inward_current_d_gate_beta_d__n[nodeindex0[__i]] * slow_inward_current_d__n[nodeindex0[__i]] )  ) ) ;
 				fast_sodium_current_j__n1[nodeindex0[__i]] =  ( fast_sodium_current_j__n[nodeindex0[__i]] + deltat * (  ( fast_sodium_current_j_gate_alpha_j__n[nodeindex0[__i]] *  ( (double)1 - fast_sodium_current_j__n[nodeindex0[__i]] )  )  -  ( fast_sodium_current_j_gate_beta_j__n[nodeindex0[__i]] * fast_sodium_current_j__n[nodeindex0[__i]] )  ) ) ;
@@ -473,12 +460,10 @@ int main ( int argc , char** argv ) {
 				} else {
 					membrane_I_stim__n[nodeindex0[__i]] =  0 ;
 				}
-
 			}
 
 			/* REVISION: added the equation with differential equations */
 			//Shortest Calculation Order:2
-			//---------------------------- LOOP ----------------------------//
 			for(__i = 0; __i < calcindex ; __i++){
 				slow_inward_current_Cai__n1[nodeindex0[__i]] = ( slow_inward_current_Cai__n[nodeindex0[__i]] + deltat * (  (  (  ( - (double)0.0001 )  / (double)1 )  * membrane_i_si__n[nodeindex0[__i]] )  +  ( (double)0.07 *  ( (double)0.0001 - slow_inward_current_Cai__n[nodeindex0[__i]] )  )  ) ) ;
 				membrane_i_Kp__n[nodeindex0[__i]] =  ( plateau_potassium_current_g_Kp * plateau_potassium_current_Kp__n[nodeindex0[__i]] *  ( membrane_V__n[nodeindex0[__i]] - plateau_potassium_current_E_Kp__n[nodeindex0[__i]] )  ) ;
@@ -486,14 +471,12 @@ int main ( int argc , char** argv ) {
 			}
 
 			//Shortest Calculation Order:3
-			//---------------------------- LOOP ----------------------------//
 			for(__i = 0; __i < calcindex ; __i++){
 				membrane_i_K1__n[nodeindex0[__i]] =  ( time_independent_potassium_current_g_K1__n[nodeindex0[__i]] * time_independent_potassium_current_K1_infinity__n[nodeindex0[__i]] *  ( membrane_V__n[nodeindex0[__i]] - time_independent_potassium_current_E_K1__n[nodeindex0[__i]] )  ) ;
 			}
 
 			/* REVISION: added the equation with differential equations */
 			//Shortest Calculation Order:4
-			//---------------------------- LOOP ----------------------------//
 			for(__i = 0; __i < calcindex ; __i++){
 				membrane_V__n1[nodeindex0[__i]]  =  ( membrane_V__n[nodeindex0[__i]] + deltat * ( (  (  ( - (double)1 )  / membrane_C )  *  ( membrane_I_stim__n[nodeindex0[__i]] + membrane_i_Na__n[nodeindex0[__i]] + membrane_i_si__n[nodeindex0[__i]] + membrane_i_K__n[nodeindex0[__i]] + membrane_i_K1__n[nodeindex0[__i]] + membrane_i_Kp__n[nodeindex0[__i]] + membrane_i_b__n[nodeindex0[__i]] )  )  +  ( membrane_D *  (  ( membrane_V__n[ ( R[nodeindex0[__i]] ) ] +  ( -  ( (double)2 * membrane_V__n[nodeindex0[__i]] )  )  + membrane_V__n[ ( L[nodeindex0[__i]] ) ] )  /  ( deltax1 * deltax1 )  )  )  +  ( membrane_D *  (  ( membrane_V__n[ ( D[nodeindex0[__i]] )] +  ( -  ( (double)2 * membrane_V__n[nodeindex0[__i]] )  )  + membrane_V__n[ ( U[nodeindex0[__i]] ) ] )  /  ( deltax2 * deltax2 )  )  )  ) ) ;
 			}
@@ -559,7 +542,6 @@ int main ( int argc , char** argv ) {
 			MPI_Irecv(&recvarray2[0], 8, MPI_DOUBLE, 3, tag, MPI_COMM_WORLD, &reqs[3]);
 
 			/* REVISION: correct the indexing TODO: put the correct range of morphology nodes */
-			//---------------------------- LOOP ----------------------------//
 			for(__i = 0; __i < calcindex ; __i++){
 				slow_inward_current_f_gate_beta_f__n[nodeindex1[__i]] =  (  ( (double)0.0065 * exp(  (  ( - (double)0.02 )  *  ( membrane_V__n[nodeindex1[__i]] + (double)30 )  )  ) )  /  ( (double)1 + exp(  (  ( - (double)0.2 )  *  ( membrane_V__n[nodeindex1[__i]] + (double)30 )  )  ) )  ) ;
 				plateau_potassium_current_Kp__n[nodeindex1[__i]] =  ( (double)1 /  ( (double)1 + exp(  (  ( (double)7.488 - membrane_V__n[nodeindex1[__i]] )  / (double)5.98 )  ) )  );
@@ -570,10 +552,8 @@ int main ( int argc , char** argv ) {
 				membrane_i_b__n[nodeindex1[__i]] =  ( background_current_g_b *  ( membrane_V__n[nodeindex1[__i]] - background_current_E_b )  ) ;
 				fast_sodium_current_j_gate_beta_j__n[nodeindex1[__i]] =  (  ( membrane_V__n[nodeindex1[__i]] <  ( - (double)40 )  )  ?  (  ( (double)0.1212 * exp(  (  ( - (double)0.01052 )  * membrane_V__n[nodeindex1[__i]] )  ) )  /  ( (double)1 + exp(  (  ( - (double)0.1378 )  *  ( membrane_V__n[nodeindex1[__i]] + (double)40.14 )  )  ) )  )  :  (  ( (double)0.3 * exp(  (  ( - (double)0.0000002535 )  * membrane_V__n[nodeindex1[__i]] )  ) )  /  ( (double)1 + exp(  (  ( - (double)0.1 )  *  ( membrane_V__n[nodeindex1[__i]] + (double)32 )  )  ) )  )  ) ;
 				time_dependent_potassium_current_g_K__n[nodeindex1[__i]] =  ( time_dependent_potassium_current_g_Kbar * sqrt(  ( time_independent_potassium_current_Ko / (double)5.4 )  ) ) ;
-
 				time_dependent_potassium_current_E_K__n[nodeindex1[__i]] =  (  (  ( membrane_R * membrane_T )  / membrane_F )  * log(  (  ( time_independent_potassium_current_Ko +  ( time_dependent_potassium_current_PR_NaK * time_dependent_potassium_current_Nao )  )  /  ( time_independent_potassium_current_Ki +  ( time_dependent_potassium_current_PR_NaK * time_dependent_potassium_current_Nai )  )  )  ) ) ;
-
-				time_dependent_potassium_current_X_gate_alpha_X__n[nodeindex1[__i]] =  (  ( (double)0.0005 * exp(  ( (double)0.083 *  ( membrane_V__n[nodeindex1[__i]] + (double)50 )  )  ) )  /  ( (double)1 + exp(  ( (double)0.057 *  ( membrane_V__n[__i] + (double)50 )  )  ) )  ) ;
+				time_dependent_potassium_current_X_gate_alpha_X__n[nodeindex1[__i]] =  (  ( (double)0.0005 * exp(  ( (double)0.083 *  ( membrane_V__n[nodeindex1[__i]] + (double)50 )  )  ) )  /  ( (double)1 + exp(  ( (double)0.057 *  ( membrane_V__n[nodeindex1[__i]] + (double)50 )  )  ) )  ) ;
 				time_dependent_potassium_current_X_gate_beta_X__n[nodeindex1[__i]] =  (  ( (double)0.0013 * exp(  (  ( - (double)0.06 )  *  ( membrane_V__n[nodeindex1[__i]] + (double)20 )  )  ) )  /  ( (double)1 + exp(  (  ( - (double)0.04 )  *  ( membrane_V__n[nodeindex1[__i]] + (double)20 )  )  ) )  ) ;
 				time_dependent_potassium_current_Xi__n[nodeindex1[__i]] =  (  ( membrane_V__n[nodeindex1[__i]] >  ( - (double)100 )  )  ?  (  ( (double)2.837 *  ( exp(  ( (double)0.04 *  ( membrane_V__n[nodeindex1[__i]] + (double)77 )  )  ) - (double)1 )  )  /  (  ( membrane_V__n[nodeindex1[__i]] + (double)77 )  * exp(  ( (double)0.04 *  ( membrane_V__n[nodeindex1[__i]] + (double)35 )  )  ) )  )  : (double)1 ) ;
 				time_independent_potassium_current_g_K1__n[nodeindex1[__i]] =  ( (double)0.6047 * sqrt(  ( time_independent_potassium_current_Ko / (double)5.4 )  ) ) ;
@@ -603,7 +583,6 @@ int main ( int argc , char** argv ) {
 			for(__i = 0; __i < 8; __i++){
 				membrane_V__n[__i + 266] = recvarray2[__i];
 			}
-			//en = MPI_Wtime();
 
 			/* REVISION: correct the boundary condition equations (remove unneccessary flags) */
 			//---------------------------- NODE 13 - 206 D[] ----------------------------//
@@ -615,9 +594,9 @@ int main ( int argc , char** argv ) {
 				membrane_V__n[__i] = membrane_V__n[ ( D[__i] ) ] ;
 			}
 			//---------------------------- NODE 301 D[] ----------------------------//
-				membrane_V__n[550] =  membrane_V__n[D[550]] ;
+			membrane_V__n[550] =  membrane_V__n[D[550]] ;
 			//---------------------------- NODE 328 D[] ----------------------------//
-				membrane_V__n[555] =  membrane_V__n[D[555]] ;
+			membrane_V__n[555] =  membrane_V__n[D[555]] ;
 			//---------------------------- NODE 459 - 470 D[] ----------------------------//
 			for(__i=573; __i<=574; __i++){
 				membrane_V__n[__i] = membrane_V__n[ ( D[__i] ) ] ;
@@ -639,66 +618,63 @@ int main ( int argc , char** argv ) {
 				membrane_V__n[__i] =  membrane_V__n[ ( D[__i] ) ] ;
 			}
 
-
 			//---------------------------- NODE 212 R[] ----------------------------//
-				membrane_V__n[542] =  membrane_V__n[R[542]] ;
+			membrane_V__n[542] =  membrane_V__n[R[542]] ;
 			//---------------------------- NODE 271 R[] ----------------------------//
-				membrane_V__n[546] =  membrane_V__n[R[546]] ;
+			membrane_V__n[546] =  membrane_V__n[R[546]] ;
 			//---------------------------- NODE 330 R[] ----------------------------//
-				membrane_V__n[556] =  membrane_V__n[R[556]] ;
+			membrane_V__n[556] =  membrane_V__n[R[556]] ;
 			//---------------------------- NODE 360 R[] ----------------------------//
-				membrane_V__n[560] =  membrane_V__n[R[560]] ;
+			membrane_V__n[560] =  membrane_V__n[R[560]] ;
 			//---------------------------- NODE 390 R[] ----------------------------//
-				membrane_V__n[564] =  membrane_V__n[R[564]] ;
+			membrane_V__n[564] =  membrane_V__n[R[564]] ;
 			//---------------------------- NODE 409 R[] ----------------------------//
-				membrane_V__n[566] =  membrane_V__n[R[566]] ;
+			membrane_V__n[566] =  membrane_V__n[R[566]] ;
 			//---------------------------- NODE 420 R[] ----------------------------//
-				membrane_V__n[568] =  membrane_V__n[R[568]] ;
+			membrane_V__n[568] =  membrane_V__n[R[568]] ;
 			//---------------------------- NODE 450 R[] ----------------------------//
-				membrane_V__n[572] =  membrane_V__n[R[572]] ;
+			membrane_V__n[572] =  membrane_V__n[R[572]] ;
 			//---------------------------- NODE 480 R[] ----------------------------//
-				membrane_V__n[576] =  membrane_V__n[R[576]] ;
+			membrane_V__n[576] =  membrane_V__n[R[576]] ;
 			//---------------------------- NODE 499 R[]----------------------------//
-				membrane_V__n[578] =  membrane_V__n[R[578]] ;
+			membrane_V__n[578] =  membrane_V__n[R[578]] ;
 			//---------------------------- NODE 510 R[] ----------------------------//
-				membrane_V__n[580] =  membrane_V__n[R[580]] ;
+			membrane_V__n[580] =  membrane_V__n[R[580]] ;
 			//---------------------------- NODE 540 R[]----------------------------//
-				membrane_V__n[584] =  membrane_V__n[R[584]] ;
+			membrane_V__n[584] =  membrane_V__n[R[584]] ;
 			//---------------------------- NODE 601 R[] ----------------------------//
-				membrane_V__n[594] =  membrane_V__n[R[594]] ;
+			membrane_V__n[594] =  membrane_V__n[R[594]] ;
 			//---------------------------- NODE 662 R[] ----------------------------//
-				membrane_V__n[600] =  membrane_V__n[R[600]] ;
-
+			membrane_V__n[600] =  membrane_V__n[R[600]] ;
 
 			//---------------------------- NODE 237 L[] ----------------------------//
-				membrane_V__n[543] =  membrane_V__n[L[543]] ;
+			membrane_V__n[543] =  membrane_V__n[L[543]] ;
 			//---------------------------- NODE 298 L[] ----------------------------//
-				membrane_V__n[549] =  membrane_V__n[L[549]] ;
+			membrane_V__n[549] =  membrane_V__n[L[549]] ;
 			//---------------------------- NODE 359 L[] ----------------------------//
-				membrane_V__n[559] =  membrane_V__n[L[559]] ;
+			membrane_V__n[559] =  membrane_V__n[L[559]] ;
 			//---------------------------- NODE 389 L[] ----------------------------//
-				membrane_V__n[563] =  membrane_V__n[L[563]] ;
+			membrane_V__n[563] =  membrane_V__n[L[563]] ;
 			//---------------------------- NODE 400 L[] ----------------------------//
-				membrane_V__n[565] =  membrane_V__n[L[565]] ;
+			membrane_V__n[565] =  membrane_V__n[L[565]] ;
 			//---------------------------- NODE 419 L[] ----------------------------//
-				membrane_V__n[567] =  membrane_V__n[L[567]] ;
+			membrane_V__n[567] =  membrane_V__n[L[567]] ;
 			//---------------------------- NODE 449 L[] ----------------------------//
-				membrane_V__n[571] =  membrane_V__n[L[571]] ;
+			membrane_V__n[571] =  membrane_V__n[L[571]] ;
 			//---------------------------- NODE 479 L[] ----------------------------//
-				membrane_V__n[575] =  membrane_V__n[L[575]] ;
+			membrane_V__n[575] =  membrane_V__n[L[575]] ;
 			//---------------------------- NODE 490 L[] ----------------------------//
-				membrane_V__n[577] =  membrane_V__n[L[577]] ;
+			membrane_V__n[577] =  membrane_V__n[L[577]] ;
 			//---------------------------- NODE 509 L[] ----------------------------//
-				membrane_V__n[579] =  membrane_V__n[L[579]] ;
+			membrane_V__n[579] =  membrane_V__n[L[579]] ;
 			//---------------------------- NODE 539 L[] ----------------------------//
-				membrane_V__n[583] =  membrane_V__n[L[583]] ;
+			membrane_V__n[583] =  membrane_V__n[L[583]] ;
 			//---------------------------- NODE 569 L[] ----------------------------//
-				membrane_V__n[587] =  membrane_V__n[L[587]] ;
+			membrane_V__n[587] =  membrane_V__n[L[587]] ;
 			//---------------------------- NODE 628 L[] ----------------------------//
-				membrane_V__n[597] =  membrane_V__n[L[597]] ;
+			membrane_V__n[597] =  membrane_V__n[L[597]] ;
 			//---------------------------- NODE 687 L[] ----------------------------//
-				membrane_V__n[601] =  membrane_V__n[L[601]] ;
-
+			membrane_V__n[601] =  membrane_V__n[L[601]] ;
 
 			//---------------------------- NODE 284 - 285 U[] ----------------------------//
 			for(__i=547; __i<=548; __i++){
@@ -721,9 +697,9 @@ int main ( int argc , char** argv ) {
 				membrane_V__n[__i] = membrane_V__n[ ( U[__i] ) ] ;
 			}
 			//---------------------------- NODE 571 U[] ----------------------------//
-				membrane_V__n[588] =  membrane_V__n[U[588]] ;
+			membrane_V__n[588] =  membrane_V__n[U[588]] ;
 			//---------------------------- NODE 598 U[] ----------------------------//
-				membrane_V__n[593] =  membrane_V__n[U[593]] ;
+			membrane_V__n[593] =  membrane_V__n[U[593]] ;
 			//---------------------------- NODE 632 - 657 U[] ----------------------------//
 			for(__i=598; __i<=599; __i++){
 				membrane_V__n[__i] = membrane_V__n[ ( U[__i] ) ] ;
@@ -735,7 +711,6 @@ int main ( int argc , char** argv ) {
 
 			/* REVISION: added the equation with differential equations TODO: revise the stimulation equation */
 			//Shortest Calculation Order:1
-			//---------------------------- LOOP ----------------------------//
 			for(__i = 0; __i < calcindex ; __i++){
 				slow_inward_current_d__n1[nodeindex1[__i]] =  ( slow_inward_current_d__n[nodeindex1[__i]] + deltat * (  ( slow_inward_current_d_gate_alpha_d__n[nodeindex1[__i]] *  ( (double)1 - slow_inward_current_d__n[nodeindex1[__i]] )  )  -  ( slow_inward_current_d_gate_beta_d__n[nodeindex1[__i]] * slow_inward_current_d__n[nodeindex1[__i]] )  ) ) ;
 				fast_sodium_current_j__n1[nodeindex1[__i]] =  ( fast_sodium_current_j__n[nodeindex1[__i]] + deltat * (  ( fast_sodium_current_j_gate_alpha_j__n[nodeindex1[__i]] *  ( (double)1 - fast_sodium_current_j__n[nodeindex1[__i]] )  )  -  ( fast_sodium_current_j_gate_beta_j__n[nodeindex1[__i]] * fast_sodium_current_j__n[nodeindex1[__i]] )  ) ) ;
@@ -755,12 +730,10 @@ int main ( int argc , char** argv ) {
 				} else {
 					membrane_I_stim__n[nodeindex1[__i]] =  0 ;
 				}
-
 			}
 
 			/* REVISION: added the equation with differential equations */
 			//Shortest Calculation Order:2
-			//---------------------------- LOOP ----------------------------//
 			for(__i = 0; __i < calcindex ; __i++){
 				slow_inward_current_Cai__n1[nodeindex1[__i]] = ( slow_inward_current_Cai__n[nodeindex1[__i]] + deltat * (  (  (  ( - (double)0.0001 )  / (double)1 )  * membrane_i_si__n[nodeindex1[__i]] )  +  ( (double)0.07 *  ( (double)0.0001 - slow_inward_current_Cai__n[nodeindex1[__i]] )  )  ) ) ;
 				membrane_i_Kp__n[nodeindex1[__i]] =  ( plateau_potassium_current_g_Kp * plateau_potassium_current_Kp__n[nodeindex1[__i]] *  ( membrane_V__n[nodeindex1[__i]] - plateau_potassium_current_E_Kp__n[nodeindex1[__i]] )  ) ;
@@ -768,22 +741,15 @@ int main ( int argc , char** argv ) {
 			}
 
 			//Shortest Calculation Order:3
-			//---------------------------- LOOP ----------------------------//
 			for(__i = 0; __i < calcindex ; __i++){
 				membrane_i_K1__n[nodeindex1[__i]] =  ( time_independent_potassium_current_g_K1__n[nodeindex1[__i]] * time_independent_potassium_current_K1_infinity__n[nodeindex1[__i]] *  ( membrane_V__n[nodeindex1[__i]] - time_independent_potassium_current_E_K1__n[nodeindex1[__i]] )  ) ;
 			}
 
 			/* REVISION: added the equation with differential equations */
 			//Shortest Calculation Order:4
-			//---------------------------- LOOP ----------------------------//
 			for(__i = 0; __i < calcindex ; __i++){
 				membrane_V__n1[nodeindex1[__i]]  =  ( membrane_V__n[nodeindex1[__i]] + deltat * ( (  (  ( - (double)1 )  / membrane_C )  *  ( membrane_I_stim__n[nodeindex1[__i]] + membrane_i_Na__n[nodeindex1[__i]] + membrane_i_si__n[nodeindex1[__i]] + membrane_i_K__n[nodeindex1[__i]] + membrane_i_K1__n[nodeindex1[__i]] + membrane_i_Kp__n[nodeindex1[__i]] + membrane_i_b__n[nodeindex1[__i]] )  )  +  ( membrane_D *  (  ( membrane_V__n[ ( R[nodeindex1[__i]] ) ] +  ( -  ( (double)2 * membrane_V__n[nodeindex1[__i]] )  )  + membrane_V__n[ ( L[nodeindex1[__i]] ) ] )  /  ( deltax1 * deltax1 )  )  )  +  ( membrane_D *  (  ( membrane_V__n[ ( D[nodeindex1[__i]] )] +  ( -  ( (double)2 * membrane_V__n[nodeindex1[__i]] )  )  + membrane_V__n[ ( U[nodeindex1[__i]] ) ] )  /  ( deltax2 * deltax2 )  )  )  ) ) ;
 			}
-
-			/* REVISION: print current time */
-			/*if (timeCount % ((int)(100)) == 0) {
-				printf("%f ", membrane_time);
-			}*/
 
 			/* REVISION: reassign the results of index n1(n+1) to index n TODO: harmonize with structured relml version */
 			for(__i = 0; __i < calcindex ; __i++){
@@ -794,26 +760,7 @@ int main ( int argc , char** argv ) {
 				fast_sodium_current_m__n[nodeindex1[__i]] = fast_sodium_current_m__n1[nodeindex1[__i]];
 				slow_inward_current_f__n[nodeindex1[__i]] = slow_inward_current_f__n1[nodeindex1[__i]];
 				membrane_V__n[nodeindex1[__i]] = membrane_V__n1[nodeindex1[__i]];
-
-				/* REVISION: print a partial part of results (opposite ends of the morphology) */
-				/*if (timeCount % ((int)(100)) == 0) {
-					if ( __i>=0 && __i<=128) {
-						printf("%f ", membrane_V__n1[__i]);
-					}
-					if ( __i==3 ) {
-						printf(" <--- stim start : array end ---> ");
-					}
-					if ( __i>=515 && __i<=517) {
-						printf("%f ", membrane_V__n1[__i]);
-					}
-				}*/
-
 			}
-
-			/* REVISION: print a partial part of results */
-			/*if (timeCount % ((int)(100)) == 0) {
-				printf("\n");
-			}*/
 
 			/* REVISION: insert time counter */
 			timeCount =  ( timeCount + 1 ) ;
@@ -838,7 +785,6 @@ int main ( int argc , char** argv ) {
 			MPI_Irecv(&recvarray2[0], 8, MPI_DOUBLE, 0, tag, MPI_COMM_WORLD, &reqs[3]);
 
 			/* REVISION: correct the indexing TODO: put the correct range of morphology nodes */
-			//---------------------------- LOOP ----------------------------//
 			for(__i = 0; __i < calcindex ; __i++){
 				slow_inward_current_f_gate_beta_f__n[nodeindex2[__i]] =  (  ( (double)0.0065 * exp(  (  ( - (double)0.02 )  *  ( membrane_V__n[nodeindex2[__i]] + (double)30 )  )  ) )  /  ( (double)1 + exp(  (  ( - (double)0.2 )  *  ( membrane_V__n[nodeindex2[__i]] + (double)30 )  )  ) )  ) ;
 				plateau_potassium_current_Kp__n[nodeindex2[__i]] =  ( (double)1 /  ( (double)1 + exp(  (  ( (double)7.488 - membrane_V__n[nodeindex2[__i]] )  / (double)5.98 )  ) )  );
@@ -849,10 +795,8 @@ int main ( int argc , char** argv ) {
 				membrane_i_b__n[nodeindex2[__i]] =  ( background_current_g_b *  ( membrane_V__n[nodeindex2[__i]] - background_current_E_b )  ) ;
 				fast_sodium_current_j_gate_beta_j__n[nodeindex2[__i]] =  (  ( membrane_V__n[nodeindex2[__i]] <  ( - (double)40 )  )  ?  (  ( (double)0.1212 * exp(  (  ( - (double)0.01052 )  * membrane_V__n[nodeindex2[__i]] )  ) )  /  ( (double)1 + exp(  (  ( - (double)0.1378 )  *  ( membrane_V__n[nodeindex2[__i]] + (double)40.14 )  )  ) )  )  :  (  ( (double)0.3 * exp(  (  ( - (double)0.0000002535 )  * membrane_V__n[nodeindex2[__i]] )  ) )  /  ( (double)1 + exp(  (  ( - (double)0.1 )  *  ( membrane_V__n[nodeindex2[__i]] + (double)32 )  )  ) )  )  ) ;
 				time_dependent_potassium_current_g_K__n[nodeindex2[__i]] =  ( time_dependent_potassium_current_g_Kbar * sqrt(  ( time_independent_potassium_current_Ko / (double)5.4 )  ) ) ;
-
 				time_dependent_potassium_current_E_K__n[nodeindex2[__i]] =  (  (  ( membrane_R * membrane_T )  / membrane_F )  * log(  (  ( time_independent_potassium_current_Ko +  ( time_dependent_potassium_current_PR_NaK * time_dependent_potassium_current_Nao )  )  /  ( time_independent_potassium_current_Ki +  ( time_dependent_potassium_current_PR_NaK * time_dependent_potassium_current_Nai )  )  )  ) ) ;
-
-				time_dependent_potassium_current_X_gate_alpha_X__n[nodeindex2[__i]] =  (  ( (double)0.0005 * exp(  ( (double)0.083 *  ( membrane_V__n[nodeindex2[__i]] + (double)50 )  )  ) )  /  ( (double)1 + exp(  ( (double)0.057 *  ( membrane_V__n[__i] + (double)50 )  )  ) )  ) ;
+				time_dependent_potassium_current_X_gate_alpha_X__n[nodeindex2[__i]] =  (  ( (double)0.0005 * exp(  ( (double)0.083 *  ( membrane_V__n[nodeindex2[__i]] + (double)50 )  )  ) )  /  ( (double)1 + exp(  ( (double)0.057 *  ( membrane_V__n[nodeindex2[__i]] + (double)50 )  )  ) )  ) ;
 				time_dependent_potassium_current_X_gate_beta_X__n[nodeindex2[__i]] =  (  ( (double)0.0013 * exp(  (  ( - (double)0.06 )  *  ( membrane_V__n[nodeindex2[__i]] + (double)20 )  )  ) )  /  ( (double)1 + exp(  (  ( - (double)0.04 )  *  ( membrane_V__n[nodeindex2[__i]] + (double)20 )  )  ) )  ) ;
 				time_dependent_potassium_current_Xi__n[nodeindex2[__i]] =  (  ( membrane_V__n[nodeindex2[__i]] >  ( - (double)100 )  )  ?  (  ( (double)2.837 *  ( exp(  ( (double)0.04 *  ( membrane_V__n[nodeindex2[__i]] + (double)77 )  )  ) - (double)1 )  )  /  (  ( membrane_V__n[nodeindex2[__i]] + (double)77 )  * exp(  ( (double)0.04 *  ( membrane_V__n[nodeindex2[__i]] + (double)35 )  )  ) )  )  : (double)1 ) ;
 				time_independent_potassium_current_g_K1__n[nodeindex2[__i]] =  ( (double)0.6047 * sqrt(  ( time_independent_potassium_current_Ko / (double)5.4 )  ) ) ;
@@ -882,7 +826,6 @@ int main ( int argc , char** argv ) {
 			for(__i = 0; __i < 8; __i++){
 				membrane_V__n[__i + 242] = recvarray2[__i];
 			}
-			//en = MPI_Wtime();
 
 			/* REVISION: correct the boundary condition equations (remove unneccessary flags) */
 			//---------------------------- NODE 13 - 206 D[] ----------------------------//
@@ -894,9 +837,9 @@ int main ( int argc , char** argv ) {
 				membrane_V__n[__i] = membrane_V__n[ ( D[__i] ) ] ;
 			}
 			//---------------------------- NODE 301 D[] ----------------------------//
-				membrane_V__n[550] =  membrane_V__n[D[550]] ;
+			membrane_V__n[550] =  membrane_V__n[D[550]] ;
 			//---------------------------- NODE 328 D[] ----------------------------//
-				membrane_V__n[555] =  membrane_V__n[D[555]] ;
+			membrane_V__n[555] =  membrane_V__n[D[555]] ;
 			//---------------------------- NODE 459 - 470 D[] ----------------------------//
 			for(__i=573; __i<=574; __i++){
 				membrane_V__n[__i] = membrane_V__n[ ( D[__i] ) ] ;
@@ -918,66 +861,63 @@ int main ( int argc , char** argv ) {
 				membrane_V__n[__i] =  membrane_V__n[ ( D[__i] ) ] ;
 			}
 
-
 			//---------------------------- NODE 212 R[] ----------------------------//
-				membrane_V__n[542] =  membrane_V__n[R[542]] ;
+			membrane_V__n[542] =  membrane_V__n[R[542]] ;
 			//---------------------------- NODE 271 R[] ----------------------------//
-				membrane_V__n[546] =  membrane_V__n[R[546]] ;
+			membrane_V__n[546] =  membrane_V__n[R[546]] ;
 			//---------------------------- NODE 330 R[] ----------------------------//
-				membrane_V__n[556] =  membrane_V__n[R[556]] ;
+			membrane_V__n[556] =  membrane_V__n[R[556]] ;
 			//---------------------------- NODE 360 R[] ----------------------------//
-				membrane_V__n[560] =  membrane_V__n[R[560]] ;
+			membrane_V__n[560] =  membrane_V__n[R[560]] ;
 			//---------------------------- NODE 390 R[] ----------------------------//
-				membrane_V__n[564] =  membrane_V__n[R[564]] ;
+			membrane_V__n[564] =  membrane_V__n[R[564]] ;
 			//---------------------------- NODE 409 R[] ----------------------------//
-				membrane_V__n[566] =  membrane_V__n[R[566]] ;
+			membrane_V__n[566] =  membrane_V__n[R[566]] ;
 			//---------------------------- NODE 420 R[] ----------------------------//
-				membrane_V__n[568] =  membrane_V__n[R[568]] ;
+			membrane_V__n[568] =  membrane_V__n[R[568]] ;
 			//---------------------------- NODE 450 R[] ----------------------------//
-				membrane_V__n[572] =  membrane_V__n[R[572]] ;
+			membrane_V__n[572] =  membrane_V__n[R[572]] ;
 			//---------------------------- NODE 480 R[] ----------------------------//
-				membrane_V__n[576] =  membrane_V__n[R[576]] ;
+			membrane_V__n[576] =  membrane_V__n[R[576]] ;
 			//---------------------------- NODE 499 R[]----------------------------//
-				membrane_V__n[578] =  membrane_V__n[R[578]] ;
+			membrane_V__n[578] =  membrane_V__n[R[578]] ;
 			//---------------------------- NODE 510 R[] ----------------------------//
-				membrane_V__n[580] =  membrane_V__n[R[580]] ;
+			membrane_V__n[580] =  membrane_V__n[R[580]] ;
 			//---------------------------- NODE 540 R[]----------------------------//
-				membrane_V__n[584] =  membrane_V__n[R[584]] ;
+			membrane_V__n[584] =  membrane_V__n[R[584]] ;
 			//---------------------------- NODE 601 R[] ----------------------------//
-				membrane_V__n[594] =  membrane_V__n[R[594]] ;
+			membrane_V__n[594] =  membrane_V__n[R[594]] ;
 			//---------------------------- NODE 662 R[] ----------------------------//
-				membrane_V__n[600] =  membrane_V__n[R[600]] ;
-
+			membrane_V__n[600] =  membrane_V__n[R[600]] ;
 
 			//---------------------------- NODE 237 L[] ----------------------------//
-				membrane_V__n[543] =  membrane_V__n[L[543]] ;
+			membrane_V__n[543] =  membrane_V__n[L[543]] ;
 			//---------------------------- NODE 298 L[] ----------------------------//
-				membrane_V__n[549] =  membrane_V__n[L[549]] ;
+			membrane_V__n[549] =  membrane_V__n[L[549]] ;
 			//---------------------------- NODE 359 L[] ----------------------------//
-				membrane_V__n[559] =  membrane_V__n[L[559]] ;
+			membrane_V__n[559] =  membrane_V__n[L[559]] ;
 			//---------------------------- NODE 389 L[] ----------------------------//
-				membrane_V__n[563] =  membrane_V__n[L[563]] ;
+			membrane_V__n[563] =  membrane_V__n[L[563]] ;
 			//---------------------------- NODE 400 L[] ----------------------------//
-				membrane_V__n[565] =  membrane_V__n[L[565]] ;
+			membrane_V__n[565] =  membrane_V__n[L[565]] ;
 			//---------------------------- NODE 419 L[] ----------------------------//
-				membrane_V__n[567] =  membrane_V__n[L[567]] ;
+			membrane_V__n[567] =  membrane_V__n[L[567]] ;
 			//---------------------------- NODE 449 L[] ----------------------------//
-				membrane_V__n[571] =  membrane_V__n[L[571]] ;
+			membrane_V__n[571] =  membrane_V__n[L[571]] ;
 			//---------------------------- NODE 479 L[] ----------------------------//
-				membrane_V__n[575] =  membrane_V__n[L[575]] ;
+			membrane_V__n[575] =  membrane_V__n[L[575]] ;
 			//---------------------------- NODE 490 L[] ----------------------------//
-				membrane_V__n[577] =  membrane_V__n[L[577]] ;
+			membrane_V__n[577] =  membrane_V__n[L[577]] ;
 			//---------------------------- NODE 509 L[] ----------------------------//
-				membrane_V__n[579] =  membrane_V__n[L[579]] ;
+			membrane_V__n[579] =  membrane_V__n[L[579]] ;
 			//---------------------------- NODE 539 L[] ----------------------------//
-				membrane_V__n[583] =  membrane_V__n[L[583]] ;
+			membrane_V__n[583] =  membrane_V__n[L[583]] ;
 			//---------------------------- NODE 569 L[] ----------------------------//
-				membrane_V__n[587] =  membrane_V__n[L[587]] ;
+			membrane_V__n[587] =  membrane_V__n[L[587]] ;
 			//---------------------------- NODE 628 L[] ----------------------------//
-				membrane_V__n[597] =  membrane_V__n[L[597]] ;
+			membrane_V__n[597] =  membrane_V__n[L[597]] ;
 			//---------------------------- NODE 687 L[] ----------------------------//
-				membrane_V__n[601] =  membrane_V__n[L[601]] ;
-
+			membrane_V__n[601] =  membrane_V__n[L[601]] ;
 
 			//---------------------------- NODE 284 - 285 U[] ----------------------------//
 			for(__i=547; __i<=548; __i++){
@@ -1000,9 +940,9 @@ int main ( int argc , char** argv ) {
 				membrane_V__n[__i] = membrane_V__n[ ( U[__i] ) ] ;
 			}
 			//---------------------------- NODE 571 U[] ----------------------------//
-				membrane_V__n[588] =  membrane_V__n[U[588]] ;
+			membrane_V__n[588] =  membrane_V__n[U[588]] ;
 			//---------------------------- NODE 598 U[] ----------------------------//
-				membrane_V__n[593] =  membrane_V__n[U[593]] ;
+			membrane_V__n[593] =  membrane_V__n[U[593]] ;
 			//---------------------------- NODE 632 - 657 U[] ----------------------------//
 			for(__i=598; __i<=599; __i++){
 				membrane_V__n[__i] = membrane_V__n[ ( U[__i] ) ] ;
@@ -1014,7 +954,6 @@ int main ( int argc , char** argv ) {
 
 			/* REVISION: added the equation with differential equations TODO: revise the stimulation equation */
 			//Shortest Calculation Order:1
-			//---------------------------- LOOP ----------------------------//
 			for(__i = 0; __i < calcindex ; __i++){
 				slow_inward_current_d__n1[nodeindex2[__i]] =  ( slow_inward_current_d__n[nodeindex2[__i]] + deltat * (  ( slow_inward_current_d_gate_alpha_d__n[nodeindex2[__i]] *  ( (double)1 - slow_inward_current_d__n[nodeindex2[__i]] )  )  -  ( slow_inward_current_d_gate_beta_d__n[nodeindex2[__i]] * slow_inward_current_d__n[nodeindex2[__i]] )  ) ) ;
 				fast_sodium_current_j__n1[nodeindex2[__i]] =  ( fast_sodium_current_j__n[nodeindex2[__i]] + deltat * (  ( fast_sodium_current_j_gate_alpha_j__n[nodeindex2[__i]] *  ( (double)1 - fast_sodium_current_j__n[nodeindex2[__i]] )  )  -  ( fast_sodium_current_j_gate_beta_j__n[nodeindex2[__i]] * fast_sodium_current_j__n[nodeindex2[__i]] )  ) ) ;
@@ -1034,12 +973,10 @@ int main ( int argc , char** argv ) {
 				} else {
 					membrane_I_stim__n[nodeindex2[__i]] =  0 ;
 				}
-
 			}
 
 			/* REVISION: added the equation with differential equations */
 			//Shortest Calculation Order:2
-			//---------------------------- LOOP ----------------------------//
 			for(__i = 0; __i < calcindex ; __i++){
 				slow_inward_current_Cai__n1[nodeindex2[__i]] = ( slow_inward_current_Cai__n[nodeindex2[__i]] + deltat * (  (  (  ( - (double)0.0001 )  / (double)1 )  * membrane_i_si__n[nodeindex2[__i]] )  +  ( (double)0.07 *  ( (double)0.0001 - slow_inward_current_Cai__n[nodeindex2[__i]] )  )  ) ) ;
 				membrane_i_Kp__n[nodeindex2[__i]] =  ( plateau_potassium_current_g_Kp * plateau_potassium_current_Kp__n[nodeindex2[__i]] *  ( membrane_V__n[nodeindex2[__i]] - plateau_potassium_current_E_Kp__n[nodeindex2[__i]] )  ) ;
@@ -1047,23 +984,15 @@ int main ( int argc , char** argv ) {
 			}
 
 			//Shortest Calculation Order:3
-			//---------------------------- LOOP ----------------------------//
 			for(__i = 0; __i < calcindex ; __i++){
 				membrane_i_K1__n[nodeindex2[__i]] =  ( time_independent_potassium_current_g_K1__n[nodeindex2[__i]] * time_independent_potassium_current_K1_infinity__n[nodeindex2[__i]] *  ( membrane_V__n[nodeindex2[__i]] - time_independent_potassium_current_E_K1__n[nodeindex2[__i]] )  ) ;
 			}
 
 			/* REVISION: added the equation with differential equations */
 			//Shortest Calculation Order:4
-			//---------------------------- LOOP ----------------------------//
 			for(__i = 0; __i < calcindex ; __i++){
 				membrane_V__n1[nodeindex2[__i]]  =  ( membrane_V__n[nodeindex2[__i]] + deltat * ( (  (  ( - (double)1 )  / membrane_C )  *  ( membrane_I_stim__n[nodeindex2[__i]] + membrane_i_Na__n[nodeindex2[__i]] + membrane_i_si__n[nodeindex2[__i]] + membrane_i_K__n[nodeindex2[__i]] + membrane_i_K1__n[nodeindex2[__i]] + membrane_i_Kp__n[nodeindex2[__i]] + membrane_i_b__n[nodeindex2[__i]] )  )  +  ( membrane_D *  (  ( membrane_V__n[ ( R[nodeindex2[__i]] ) ] +  ( -  ( (double)2 * membrane_V__n[nodeindex2[__i]] )  )  + membrane_V__n[ ( L[nodeindex2[__i]] ) ] )  /  ( deltax1 * deltax1 )  )  )  +  ( membrane_D *  (  ( membrane_V__n[ ( D[nodeindex2[__i]] )] +  ( -  ( (double)2 * membrane_V__n[nodeindex2[__i]] )  )  + membrane_V__n[ ( U[nodeindex2[__i]] ) ] )  /  ( deltax2 * deltax2 )  )  )  ) ) ;
 			}
-
-			/* REVISION: print current time */
-			/*if (timeCount % ((int)(100)) == 0) {
-				printf("%f ", membrane_time);
-			}*/
-
 
 			/* REVISION: reassign the results of index n1(n+1) to index n TODO: harmonize with structured relml version */
 			for(__i = 0; __i < calcindex ; __i++){
@@ -1074,25 +1003,7 @@ int main ( int argc , char** argv ) {
 				fast_sodium_current_m__n[nodeindex2[__i]] = fast_sodium_current_m__n1[nodeindex2[__i]];
 				slow_inward_current_f__n[nodeindex2[__i]] = slow_inward_current_f__n1[nodeindex2[__i]];
 				membrane_V__n[nodeindex2[__i]] = membrane_V__n1[nodeindex2[__i]];
-
-				/* REVISION: print a partial part of results (opposite ends of the morphology) */
-				/*if (timeCount % ((int)(100)) == 0) {
-					if ( __i>=0 && __i<=128) {
-						printf("%f ", membrane_V__n1[__i]);
-					}
-					if ( __i==3 ) {
-						printf(" <--- stim start : array end ---> ");
-					}
-					if ( __i>=515 && __i<=517) {
-						printf("%f ", membrane_V__n1[__i]);
-					}
-				}*/
 			}
-
-			/* REVISION: print a partial part of results */
-			/*if (timeCount % ((int)(100)) == 0) {
-				printf("\n");
-			}*/
 
 			/* REVISION: insert time counter */
 			timeCount =  ( timeCount + 1 ) ;
@@ -1116,7 +1027,6 @@ int main ( int argc , char** argv ) {
 			MPI_Irecv(&recvarray2[0], 8, MPI_DOUBLE, 1, tag, MPI_COMM_WORLD, &reqs[3]);
 
 			/* REVISION: correct the indexing TODO: put the correct range of morphology nodes */
-			//---------------------------- LOOP ----------------------------//
 			for(__i = 0; __i < calcindex ; __i++){
 				slow_inward_current_f_gate_beta_f__n[nodeindex3[__i]] =  (  ( (double)0.0065 * exp(  (  ( - (double)0.02 )  *  ( membrane_V__n[nodeindex3[__i]] + (double)30 )  )  ) )  /  ( (double)1 + exp(  (  ( - (double)0.2 )  *  ( membrane_V__n[nodeindex3[__i]] + (double)30 )  )  ) )  ) ;
 				plateau_potassium_current_Kp__n[nodeindex3[__i]] =  ( (double)1 /  ( (double)1 + exp(  (  ( (double)7.488 - membrane_V__n[nodeindex3[__i]] )  / (double)5.98 )  ) )  );
@@ -1127,10 +1037,8 @@ int main ( int argc , char** argv ) {
 				membrane_i_b__n[nodeindex3[__i]] =  ( background_current_g_b *  ( membrane_V__n[nodeindex3[__i]] - background_current_E_b )  ) ;
 				fast_sodium_current_j_gate_beta_j__n[nodeindex3[__i]] =  (  ( membrane_V__n[nodeindex3[__i]] <  ( - (double)40 )  )  ?  (  ( (double)0.1212 * exp(  (  ( - (double)0.01052 )  * membrane_V__n[nodeindex3[__i]] )  ) )  /  ( (double)1 + exp(  (  ( - (double)0.1378 )  *  ( membrane_V__n[nodeindex3[__i]] + (double)40.14 )  )  ) )  )  :  (  ( (double)0.3 * exp(  (  ( - (double)0.0000002535 )  * membrane_V__n[nodeindex3[__i]] )  ) )  /  ( (double)1 + exp(  (  ( - (double)0.1 )  *  ( membrane_V__n[nodeindex3[__i]] + (double)32 )  )  ) )  )  ) ;
 				time_dependent_potassium_current_g_K__n[nodeindex3[__i]] =  ( time_dependent_potassium_current_g_Kbar * sqrt(  ( time_independent_potassium_current_Ko / (double)5.4 )  ) ) ;
-
 				time_dependent_potassium_current_E_K__n[nodeindex3[__i]] =  (  (  ( membrane_R * membrane_T )  / membrane_F )  * log(  (  ( time_independent_potassium_current_Ko +  ( time_dependent_potassium_current_PR_NaK * time_dependent_potassium_current_Nao )  )  /  ( time_independent_potassium_current_Ki +  ( time_dependent_potassium_current_PR_NaK * time_dependent_potassium_current_Nai )  )  )  ) ) ;
-
-				time_dependent_potassium_current_X_gate_alpha_X__n[nodeindex3[__i]] =  (  ( (double)0.0005 * exp(  ( (double)0.083 *  ( membrane_V__n[nodeindex3[__i]] + (double)50 )  )  ) )  /  ( (double)1 + exp(  ( (double)0.057 *  ( membrane_V__n[__i] + (double)50 )  )  ) )  ) ;
+				time_dependent_potassium_current_X_gate_alpha_X__n[nodeindex3[__i]] =  (  ( (double)0.0005 * exp(  ( (double)0.083 *  ( membrane_V__n[nodeindex3[__i]] + (double)50 )  )  ) )  /  ( (double)1 + exp(  ( (double)0.057 *  ( membrane_V__n[nodeindex3[__i]] + (double)50 )  )  ) )  ) ;
 				time_dependent_potassium_current_X_gate_beta_X__n[nodeindex3[__i]] =  (  ( (double)0.0013 * exp(  (  ( - (double)0.06 )  *  ( membrane_V__n[nodeindex3[__i]] + (double)20 )  )  ) )  /  ( (double)1 + exp(  (  ( - (double)0.04 )  *  ( membrane_V__n[nodeindex3[__i]] + (double)20 )  )  ) )  ) ;
 				time_dependent_potassium_current_Xi__n[nodeindex3[__i]] =  (  ( membrane_V__n[nodeindex3[__i]] >  ( - (double)100 )  )  ?  (  ( (double)2.837 *  ( exp(  ( (double)0.04 *  ( membrane_V__n[nodeindex3[__i]] + (double)77 )  )  ) - (double)1 )  )  /  (  ( membrane_V__n[nodeindex3[__i]] + (double)77 )  * exp(  ( (double)0.04 *  ( membrane_V__n[nodeindex3[__i]] + (double)35 )  )  ) )  )  : (double)1 ) ;
 				time_independent_potassium_current_g_K1__n[nodeindex3[__i]] =  ( (double)0.6047 * sqrt(  ( time_independent_potassium_current_Ko / (double)5.4 )  ) ) ;
@@ -1160,7 +1068,6 @@ int main ( int argc , char** argv ) {
 			for(__i = 0; __i < 8; __i++){
 				membrane_V__n[__i + 250] = recvarray2[__i];
 			}
-			//en = MPI_Wtime();
 
 			/* REVISION: correct the boundary condition equations (remove unneccessary flags) */
 			//---------------------------- NODE 13 - 206 D[] ----------------------------//
@@ -1172,9 +1079,9 @@ int main ( int argc , char** argv ) {
 				membrane_V__n[__i] = membrane_V__n[ ( D[__i] ) ] ;
 			}
 			//---------------------------- NODE 301 D[] ----------------------------//
-				membrane_V__n[550] =  membrane_V__n[D[550]] ;
+			membrane_V__n[550] =  membrane_V__n[D[550]] ;
 			//---------------------------- NODE 328 D[] ----------------------------//
-				membrane_V__n[555] =  membrane_V__n[D[555]] ;
+			membrane_V__n[555] =  membrane_V__n[D[555]] ;
 			//---------------------------- NODE 459 - 470 D[] ----------------------------//
 			for(__i=573; __i<=574; __i++){
 				membrane_V__n[__i] = membrane_V__n[ ( D[__i] ) ] ;
@@ -1196,66 +1103,63 @@ int main ( int argc , char** argv ) {
 				membrane_V__n[__i] =  membrane_V__n[ ( D[__i] ) ] ;
 			}
 
-
 			//---------------------------- NODE 212 R[] ----------------------------//
-				membrane_V__n[542] =  membrane_V__n[R[542]] ;
+			membrane_V__n[542] =  membrane_V__n[R[542]] ;
 			//---------------------------- NODE 271 R[] ----------------------------//
-				membrane_V__n[546] =  membrane_V__n[R[546]] ;
+			membrane_V__n[546] =  membrane_V__n[R[546]] ;
 			//---------------------------- NODE 330 R[] ----------------------------//
-				membrane_V__n[556] =  membrane_V__n[R[556]] ;
+			membrane_V__n[556] =  membrane_V__n[R[556]] ;
 			//---------------------------- NODE 360 R[] ----------------------------//
-				membrane_V__n[560] =  membrane_V__n[R[560]] ;
+			membrane_V__n[560] =  membrane_V__n[R[560]] ;
 			//---------------------------- NODE 390 R[] ----------------------------//
-				membrane_V__n[564] =  membrane_V__n[R[564]] ;
+			membrane_V__n[564] =  membrane_V__n[R[564]] ;
 			//---------------------------- NODE 409 R[] ----------------------------//
-				membrane_V__n[566] =  membrane_V__n[R[566]] ;
+			membrane_V__n[566] =  membrane_V__n[R[566]] ;
 			//---------------------------- NODE 420 R[] ----------------------------//
-				membrane_V__n[568] =  membrane_V__n[R[568]] ;
+			membrane_V__n[568] =  membrane_V__n[R[568]] ;
 			//---------------------------- NODE 450 R[] ----------------------------//
-				membrane_V__n[572] =  membrane_V__n[R[572]] ;
+			membrane_V__n[572] =  membrane_V__n[R[572]] ;
 			//---------------------------- NODE 480 R[] ----------------------------//
-				membrane_V__n[576] =  membrane_V__n[R[576]] ;
+			membrane_V__n[576] =  membrane_V__n[R[576]] ;
 			//---------------------------- NODE 499 R[]----------------------------//
-				membrane_V__n[578] =  membrane_V__n[R[578]] ;
+			membrane_V__n[578] =  membrane_V__n[R[578]] ;
 			//---------------------------- NODE 510 R[] ----------------------------//
-				membrane_V__n[580] =  membrane_V__n[R[580]] ;
+			membrane_V__n[580] =  membrane_V__n[R[580]] ;
 			//---------------------------- NODE 540 R[]----------------------------//
-				membrane_V__n[584] =  membrane_V__n[R[584]] ;
+			membrane_V__n[584] =  membrane_V__n[R[584]] ;
 			//---------------------------- NODE 601 R[] ----------------------------//
-				membrane_V__n[594] =  membrane_V__n[R[594]] ;
+			membrane_V__n[594] =  membrane_V__n[R[594]] ;
 			//---------------------------- NODE 662 R[] ----------------------------//
-				membrane_V__n[600] =  membrane_V__n[R[600]] ;
-
+			membrane_V__n[600] =  membrane_V__n[R[600]] ;
 
 			//---------------------------- NODE 237 L[] ----------------------------//
-				membrane_V__n[543] =  membrane_V__n[L[543]] ;
+			membrane_V__n[543] =  membrane_V__n[L[543]] ;
 			//---------------------------- NODE 298 L[] ----------------------------//
-				membrane_V__n[549] =  membrane_V__n[L[549]] ;
+			membrane_V__n[549] =  membrane_V__n[L[549]] ;
 			//---------------------------- NODE 359 L[] ----------------------------//
-				membrane_V__n[559] =  membrane_V__n[L[559]] ;
+			membrane_V__n[559] =  membrane_V__n[L[559]] ;
 			//---------------------------- NODE 389 L[] ----------------------------//
-				membrane_V__n[563] =  membrane_V__n[L[563]] ;
+			membrane_V__n[563] =  membrane_V__n[L[563]] ;
 			//---------------------------- NODE 400 L[] ----------------------------//
-				membrane_V__n[565] =  membrane_V__n[L[565]] ;
+			membrane_V__n[565] =  membrane_V__n[L[565]] ;
 			//---------------------------- NODE 419 L[] ----------------------------//
-				membrane_V__n[567] =  membrane_V__n[L[567]] ;
+			membrane_V__n[567] =  membrane_V__n[L[567]] ;
 			//---------------------------- NODE 449 L[] ----------------------------//
-				membrane_V__n[571] =  membrane_V__n[L[571]] ;
+			membrane_V__n[571] =  membrane_V__n[L[571]] ;
 			//---------------------------- NODE 479 L[] ----------------------------//
-				membrane_V__n[575] =  membrane_V__n[L[575]] ;
+			membrane_V__n[575] =  membrane_V__n[L[575]] ;
 			//---------------------------- NODE 490 L[] ----------------------------//
-				membrane_V__n[577] =  membrane_V__n[L[577]] ;
+			membrane_V__n[577] =  membrane_V__n[L[577]] ;
 			//---------------------------- NODE 509 L[] ----------------------------//
-				membrane_V__n[579] =  membrane_V__n[L[579]] ;
+			membrane_V__n[579] =  membrane_V__n[L[579]] ;
 			//---------------------------- NODE 539 L[] ----------------------------//
-				membrane_V__n[583] =  membrane_V__n[L[583]] ;
+			membrane_V__n[583] =  membrane_V__n[L[583]] ;
 			//---------------------------- NODE 569 L[] ----------------------------//
-				membrane_V__n[587] =  membrane_V__n[L[587]] ;
+			membrane_V__n[587] =  membrane_V__n[L[587]] ;
 			//---------------------------- NODE 628 L[] ----------------------------//
-				membrane_V__n[597] =  membrane_V__n[L[597]] ;
+			membrane_V__n[597] =  membrane_V__n[L[597]] ;
 			//---------------------------- NODE 687 L[] ----------------------------//
-				membrane_V__n[601] =  membrane_V__n[L[601]] ;
-
+			membrane_V__n[601] =  membrane_V__n[L[601]] ;
 
 			//---------------------------- NODE 284 - 285 U[] ----------------------------//
 			for(__i=547; __i<=548; __i++){
@@ -1278,9 +1182,9 @@ int main ( int argc , char** argv ) {
 				membrane_V__n[__i] = membrane_V__n[ ( U[__i] ) ] ;
 			}
 			//---------------------------- NODE 571 U[] ----------------------------//
-				membrane_V__n[588] =  membrane_V__n[U[588]] ;
+			membrane_V__n[588] =  membrane_V__n[U[588]] ;
 			//---------------------------- NODE 598 U[] ----------------------------//
-				membrane_V__n[593] =  membrane_V__n[U[593]] ;
+			membrane_V__n[593] =  membrane_V__n[U[593]] ;
 			//---------------------------- NODE 632 - 657 U[] ----------------------------//
 			for(__i=598; __i<=599; __i++){
 				membrane_V__n[__i] = membrane_V__n[ ( U[__i] ) ] ;
@@ -1312,12 +1216,10 @@ int main ( int argc , char** argv ) {
 				} else {
 					membrane_I_stim__n[nodeindex3[__i]] =  0 ;
 				}
-
 			}
 
 			/* REVISION: added the equation with differential equations */
 			//Shortest Calculation Order:2
-			//---------------------------- LOOP ----------------------------//
 			for(__i = 0; __i < calcindex ; __i++){
 				slow_inward_current_Cai__n1[nodeindex3[__i]] = ( slow_inward_current_Cai__n[nodeindex3[__i]] + deltat * (  (  (  ( - (double)0.0001 )  / (double)1 )  * membrane_i_si__n[nodeindex3[__i]] )  +  ( (double)0.07 *  ( (double)0.0001 - slow_inward_current_Cai__n[nodeindex3[__i]] )  )  ) ) ;
 				membrane_i_Kp__n[nodeindex3[__i]] =  ( plateau_potassium_current_g_Kp * plateau_potassium_current_Kp__n[nodeindex3[__i]] *  ( membrane_V__n[nodeindex3[__i]] - plateau_potassium_current_E_Kp__n[nodeindex3[__i]] )  ) ;
@@ -1325,22 +1227,15 @@ int main ( int argc , char** argv ) {
 			}
 
 			//Shortest Calculation Order:3
-			//---------------------------- LOOP ----------------------------//
 			for(__i = 0; __i < calcindex ; __i++){
 				membrane_i_K1__n[nodeindex3[__i]] =  ( time_independent_potassium_current_g_K1__n[nodeindex3[__i]] * time_independent_potassium_current_K1_infinity__n[nodeindex3[__i]] *  ( membrane_V__n[nodeindex3[__i]] - time_independent_potassium_current_E_K1__n[nodeindex3[__i]] )  ) ;
 			}
 
 			/* REVISION: added the equation with differential equations */
 			//Shortest Calculation Order:4
-			//---------------------------- LOOP ----------------------------//
 			for(__i = 0; __i < calcindex ; __i++){
 				membrane_V__n1[nodeindex3[__i]]  =  ( membrane_V__n[nodeindex3[__i]] + deltat * ( (  (  ( - (double)1 )  / membrane_C )  *  ( membrane_I_stim__n[nodeindex3[__i]] + membrane_i_Na__n[nodeindex3[__i]] + membrane_i_si__n[nodeindex3[__i]] + membrane_i_K__n[nodeindex3[__i]] + membrane_i_K1__n[nodeindex3[__i]] + membrane_i_Kp__n[nodeindex3[__i]] + membrane_i_b__n[nodeindex3[__i]] )  )  +  ( membrane_D *  (  ( membrane_V__n[ ( R[nodeindex3[__i]] ) ] +  ( -  ( (double)2 * membrane_V__n[nodeindex3[__i]] )  )  + membrane_V__n[ ( L[nodeindex3[__i]] ) ] )  /  ( deltax1 * deltax1 )  )  )  +  ( membrane_D *  (  ( membrane_V__n[ ( D[nodeindex3[__i]] )] +  ( -  ( (double)2 * membrane_V__n[nodeindex3[__i]] )  )  + membrane_V__n[ ( U[nodeindex3[__i]] ) ] )  /  ( deltax2 * deltax2 )  )  )  ) ) ;
 			}
-
-			/* REVISION: print current time */
-			/*if (timeCount % ((int)(100)) == 0) {
-				printf("%f ", membrane_time);
-			}*/
 
 			/* REVISION: reassign the results of index n1(n+1) to index n TODO: harmonize with structured relml version */
 			for(__i = 0; __i < calcindex ; __i++){
@@ -1351,25 +1246,7 @@ int main ( int argc , char** argv ) {
 				fast_sodium_current_m__n[nodeindex3[__i]] = fast_sodium_current_m__n1[nodeindex3[__i]];
 				slow_inward_current_f__n[nodeindex3[__i]] = slow_inward_current_f__n1[nodeindex3[__i]];
 				membrane_V__n[nodeindex3[__i]] = membrane_V__n1[nodeindex3[__i]];
-
-				/* REVISION: print a partial part of results (opposite ends of the morphology) */
-				/*if (timeCount % ((int)(100)) == 0) {
-					if ( __i>=0 && __i<=128) {
-						printf("%f ", membrane_V__n1[__i]);
-					}
-					if ( __i==3 ) {
-						printf(" <--- stim start : array end ---> ");
-					}
-					if ( __i>=515 && __i<=517) {
-						printf("%f ", membrane_V__n1[__i]);
-					}
-				}*/
 			}
-
-			/* REVISION: print a partial part of results */
-			/*if (timeCount % ((int)(100)) == 0) {
-				printf("\n");
-			}*/
 
 			/* REVISION: insert time counter */
 			timeCount =  ( timeCount + 1 ) ;
@@ -1435,16 +1312,15 @@ int main ( int argc , char** argv ) {
 
 
 	/********
-	* Discretization time was 	134 s.
+	 * Discretization time was 	134 s.
 
-	* Var container creation time was 1 s.
-	* Bipartite graph time was 41 s.
-	* Maximum matching time was 6178 s.
-	* Dependency graph time was 0 s.
-	* Tarjan algorithm time was 0 s.
-	* Loop creation time was 59 s.
-	*********/
+	 * Var container creation time was 1 s.
+	 * Bipartite graph time was 41 s.
+	 * Maximum matching time was 6178 s.
+	 * Dependency graph time was 0 s.
+	 * Tarjan algorithm time was 0 s.
+	 * Loop creation time was 59 s.
+	 *********/
 }
-
 
 
