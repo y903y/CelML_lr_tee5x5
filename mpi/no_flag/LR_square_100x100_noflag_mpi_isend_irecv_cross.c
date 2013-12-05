@@ -356,6 +356,7 @@ int main ( int argc , char** argv ) {
 		/*Revision*/
 		for(membrane_time = 0.000000; ( membrane_time <= 500.000000 ) ;membrane_time =  ( membrane_time + deltat ) ){
 
+			//st = MPI_Wtime();
 			/*送信配列のパック*/
 			for(__i = 0; __i < 49; __i++){
 				arrayindex = sendindex01[__i];
@@ -417,6 +418,7 @@ int main ( int argc , char** argv ) {
 				arrayindex = recvindex02[__i];
 				membrane_V__n[arrayindex] = recvarray2[__i];
 			}
+			//en = MPI_Wtime();
 
 			/* REVISION: correct the boundary condition equations (remove unneccessary flags) */
 			//---------------------------- NODE 1 - 98 D[] ----------------------------//
@@ -677,9 +679,9 @@ int main ( int argc , char** argv ) {
 			}
 
 			/* REVISION: print current time */
-			if (timeCount % ((int)(100)) == 0) {
+			/*if (timeCount % ((int)(100)) == 0) {
 				printf("%f ", membrane_time);
-			}
+			}*/
 
 			/* REVISION: reassign the results of index n1(n+1) to index n TODO: harmonize with structured relml version */
 			for(__i = 0; __i < calcindex ; __i++){
@@ -692,27 +694,27 @@ int main ( int argc , char** argv ) {
 				slow_inward_current_f__n[arrayindex] = slow_inward_current_f__n1[arrayindex];
 				membrane_V__n[arrayindex] = membrane_V__n1[arrayindex];
 				/* REVISION: print a partial part of results (opposite ends of the morphology) */
-				if (timeCount % ((int)(1/deltat)) == 0) {
+				/*if (timeCount % ((int)(100)) == 0) {
 					if ( arrayindex>=980 && arrayindex<=985) {
 						printf("%f ", membrane_V__n1[arrayindex]);
 					}
-					/*if ( arrayindex==3000 ) {
+					if ( arrayindex==3000 ) {
 						printf(" <--- stim start : array end ---> ");
 					}
 					if ( arrayindex>=7840 && arrayindex<=7842) {
 						printf("%f ", membrane_V__n1[__i]);
-					}*/
-				}
+					}
+				}*/
 			}
 
 			/* REVISION: print a partial part of results */
-			if (timeCount % ((int)(100)) == 0) {
+			/*if (timeCount % ((int)(100)) == 0) {
 				printf("\n");
-			}
+			}*/
 
 			/*通信時間計測出力*/
 			/*if(timeCount % 100 == 0) {
-				printf("%.6f\n", en-st);
+				printf("%.6f\n", en-st-(con2-con1));
 			}*/
 
 			/* REVISION: insert time counter */

@@ -41,16 +41,15 @@ int main ( int argc , char** argv ) {
 	/*時間計測用変数*/
 	double st, en, con1, con2;
 
-	if(myrank == 0) calcindex = 128;
-	else calcindex = 130;
-
-
 	/*MPI 初期化*/
 	MPI_Init(&argc,&argv);
 	/*MPI ランクを取得*/
 	MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
 	/*クラスタの台数取得*/
 	MPI_Comm_size(MPI_COMM_WORLD,&nodenum);
+
+	if(myrank == 0) calcindex = 128;
+	else calcindex = 130;
 
 	double* V0end;
 	double* V1end;
@@ -249,6 +248,7 @@ int main ( int argc , char** argv ) {
 		for(membrane_time = 0.000000; ( membrane_time <= 500.000000 ) ;membrane_time =  ( membrane_time + deltat ) ){
 			/*Revision*/
 
+			//st = MPI_Wtime();
 			sendarray1[0] = membrane_V__n[1];
 			sendarray1[1] = membrane_V__n[11];
 			sendarray1[2] = membrane_V__n[25];
@@ -313,6 +313,8 @@ int main ( int argc , char** argv ) {
 			for(__i = 0; __i < 8; __i++){
 				membrane_V__n[__i + 258] = recvarray2[__i];
 			}
+
+			//en = MPI_Wtime();
 
 			/* REVISION: correct the boundary condition equations (remove unneccessary flags) */
 			//---------------------------- NODE 13 - 206 D[] ----------------------------//
@@ -482,9 +484,9 @@ int main ( int argc , char** argv ) {
 			}
 
 			/* REVISION: print current time */
-			if (timeCount % ((int)(100)) == 0) {
+			/*if (timeCount % ((int)(100)) == 0) {
 				printf("%f ", membrane_time);
-			}
+			}*/
 
 			/* REVISION: reassign the results of index n1(n+1) to index n TODO: harmonize with structured relml version */
 			for(__i = 0; __i < calcindex ; __i++){
@@ -496,28 +498,28 @@ int main ( int argc , char** argv ) {
 				slow_inward_current_f__n[nodeindex0[__i]] = slow_inward_current_f__n1[nodeindex0[__i]];
 				membrane_V__n[nodeindex0[__i]] = membrane_V__n1[nodeindex0[__i]];
 
-				if (timeCount % ((int)(100)) == 0) {
+				/*if (timeCount % ((int)(100)) == 0) {
 					if ( __i>=0 && __i<=1) {
 						printf("%f ", membrane_V__n1[__i]);
 					}
-					/*if ( __i==3 ) {
+					if ( __i==3 ) {
 						printf(" <--- stim start : array end ---> ");
 					}
 					if ( __i>=515 && __i<=517) {
 						printf("%f ", membrane_V__n1[__i]);
-					}*/
-				}
+					}
+				}*/
 			}
 
 			/*時間計測*/
 			/*if (timeCount % ((int)(100)) == 0) {
-				printf("%f\n", en-st);
+				printf("%f\n", en-st-(con2-con1));
 			}*/
 
 			/* REVISION: print a partial part of results */
-			if (timeCount % ((int)(100)) == 0) {
+			/*if (timeCount % ((int)(100)) == 0) {
 				printf("\n");
-			}
+			}*/
 
 			/* REVISION: insert time counter */
 			timeCount =  ( timeCount + 1 ) ;
