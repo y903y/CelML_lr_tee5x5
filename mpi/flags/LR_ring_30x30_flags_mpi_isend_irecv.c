@@ -17,14 +17,27 @@ int main ( int argc , char** argv ) ;
 
 int main ( int argc , char** argv ) {
 
+	/*自身のランクを保持する変数*/
 	int myrank;
+	/*ノード数を保持する変数*/
 	int nodenum;
-	/*MPI_Isend,Irecv用のリクエスト*/
-	MPI_Request reqs[4];
-	MPI_Status recv_status, status;
+	/*MPIのステータスを保持する変数*/
+	MPI_Status recv_status;
+	/*通信のタグ識別子を保持する変数*/
 	int tag = 0;
+	/*計算範囲*/
+	int calcindex;
+	/*各ノードの演算を行う範囲の最初の添字を保持する変数*/
 	int sourcebuf;
-	const int root=0;//rootを親とする
+	/*各ノードの演算を行う範囲の最後の添字を保持する変数*/
+	int mycalc;
+	/*rootを親ノードとして指定*/
+	const int root=0;
+
+	/*時間計測用変数*/
+	double st, en, con1, con2;
+
+
 	/*MPI 初期化*/
 	MPI_Init(&argc,&argv);
 	/*MPI ランクを取得*/
@@ -32,11 +45,16 @@ int main ( int argc , char** argv ) {
 	/*クラスタの台数取得*/
 	MPI_Comm_size(MPI_COMM_WORLD,&nodenum);
 
-	/*時間計測用変数*/
-	double st, co1, co2, en;
 
-	/*membrane_V__nのtemp*/
-	//double* membrane_V__n_temp;
+	/*MPIの計算部分指定*/
+	int calcindex = (859-43)/nodenum;
+	int mycalc = 43 + (calcindex * myrank) + calcindex - 1;
+	if((859-43) % nodenum != 0 && myrank == nodenum - 1) mycalc += (859-43) % nodenum;
+	if(calcindex == 0) {
+		printf("ノード数が多すぎ今のところ対応していません\n");
+		return -1;
+	}
+	sourcebuf = calcindex * myrank + 43;
 
 	double* V0end;
 	double* V1end;
@@ -132,9 +150,6 @@ int main ( int argc , char** argv ) {
 	double* __flag121__n;
 	double* __flag122__n;
 	int __i;
-
-	/*membrane_V__nのtempの確保*/
-	//membrane_V__n_temp = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  );
 
 	V0end = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  );
 	V1end = malloc (  ( sizeof( double ) * __MAX_DATA_NUM )  );
@@ -1904,16 +1919,6 @@ int main ( int argc , char** argv ) {
 	__flag122__n[850-43] = 0;
 
 
-	/*MPIの計算部分指定*/
-	int calcindex = (859-43)/nodenum;
-	int mycalc = (43 + (calcindex * myrank) + calcindex) - 1;
-	if((859-43) % nodenum != 0 && myrank == nodenum - 1) mycalc += (859-43) % nodenum;
-	if(calcindex == 0) {
-		printf("ノード数が多すぎ今のところ対応していません\n");
-		return -1;
-	}
-	sourcebuf = myrank * calcindex + 43;
-
 	/* REVISION: variable for print interval */
 	int timeCount = 0;
 	double nodeSum = 0.0;
@@ -1933,9 +1938,9 @@ int main ( int argc , char** argv ) {
 //			i = (double)100;
 		//------------------------------- END -------------------------------//
 
+		//st = MPI_Wtime();
 		/*ノンブロッキング通信部分*/
 		if(myrank == root) {
-			st = MPI_Wtime();
 			MPI_Isend(&membrane_V__n[mycalc-29], 30, MPI_DOUBLE, myrank+1, tag, MPI_COMM_WORLD, &reqs[0]);
 			MPI_Irecv(&membrane_V__n[mycalc+1], 30, MPI_DOUBLE, myrank+1, tag, MPI_COMM_WORLD, &reqs[1]);
 		} else if (myrank != root && myrank != nodenum-1){
@@ -1951,9 +1956,8 @@ int main ( int argc , char** argv ) {
 		/* REVISION: correct the indexing TODO: correct the indexing in the getSyntaxProgram */
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
-		if(myrank == root) co1 = MPI_Wtime();
-		for(__i = 43 + calcindex * myrank; __i <= mycalc; __i++){
-
+		//con1 = MPI_Wtime();
+		for(__i = sourcebuf; __i <= mycalc; __i++){
 		//for(__i=43; __i<=858; __i++){
 			slow_inward_current_f_gate_beta_f__n[__i] =  (  (  (  ( (double)0.0065 * exp(  (  ( - (double)0.02 )  *  ( membrane_V__n[__i] + (double)30 )  )  ) )  /  ( (double)1 + exp(  (  ( - (double)0.2 )  *  ( membrane_V__n[__i] + (double)30 )  )  ) )  )  * __flag2__n[ ( __i - 43 ) ] )  +  ( slow_inward_current_f_gate_beta_f__n[__i] *  ( 1 - __flag2__n[ ( __i - 43 ) ] )  )  ) ;
 			plateau_potassium_current_Kp__n[__i] =  (  (  ( (double)1 /  ( (double)1 + exp(  (  ( (double)7.488 - membrane_V__n[__i] )  / (double)5.98 )  ) )  )  * __flag2__n[ ( __i - 43 ) ] )  +  ( plateau_potassium_current_Kp__n[__i] *  ( 1 - __flag2__n[ ( __i - 43 ) ] )  )  ) ;
@@ -1964,9 +1968,7 @@ int main ( int argc , char** argv ) {
 			membrane_i_b__n[__i] =  (  (  ( background_current_g_b *  ( membrane_V__n[__i] - background_current_E_b )  )  * __flag2__n[ ( __i - 43 ) ] )  +  ( membrane_i_b__n[__i] *  ( 1 - __flag2__n[ ( __i - 43 ) ] )  )  ) ;
 			fast_sodium_current_j_gate_beta_j__n[__i] =  (  (  (  ( membrane_V__n[__i] <  ( - (double)40 )  )  ?  (  ( (double)0.1212 * exp(  (  ( - (double)0.01052 )  * membrane_V__n[__i] )  ) )  /  ( (double)1 + exp(  (  ( - (double)0.1378 )  *  ( membrane_V__n[__i] + (double)40.14 )  )  ) )  )  :  (  ( (double)0.3 * exp(  (  ( - (double)0.0000002535 )  * membrane_V__n[__i] )  ) )  /  ( (double)1 + exp(  (  ( - (double)0.1 )  *  ( membrane_V__n[__i] + (double)32 )  )  ) )  )  )  * __flag2__n[ ( __i - 43 ) ] )  +  ( fast_sodium_current_j_gate_beta_j__n[__i] *  ( 1 - __flag2__n[ ( __i - 43 ) ] )  )  ) ;
 			time_dependent_potassium_current_g_K__n[__i] =  (  (  ( time_dependent_potassium_current_g_Kbar * sqrt(  ( time_independent_potassium_current_Ko / (double)5.4 )  ) )  * __flag2__n[ ( __i - 43 ) ] )  +  ( time_dependent_potassium_current_g_K__n[__i] *  ( 1 - __flag2__n[ ( __i - 43 ) ] )  )  ) ;
-
 			time_dependent_potassium_current_E_K__n[__i] =  (  (  (  (  ( membrane_R * membrane_T )  / membrane_F )  * log(  (  ( time_independent_potassium_current_Ko +  ( time_dependent_potassium_current_PR_NaK * time_dependent_potassium_current_Nao )  )  /  ( time_independent_potassium_current_Ki +  ( time_dependent_potassium_current_PR_NaK * time_dependent_potassium_current_Nai )  )  )  ) )  * __flag2__n[ ( __i - 43 ) ] )  +  ( time_dependent_potassium_current_E_K__n[__i] *  ( 1 - __flag2__n[ ( __i - 43 ) ] )  )  ) ;
-
 			time_dependent_potassium_current_X_gate_alpha_X__n[__i] =  (  (  (  ( (double)0.0005 * exp(  ( (double)0.083 *  ( membrane_V__n[__i] + (double)50 )  )  ) )  /  ( (double)1 + exp(  ( (double)0.057 *  ( membrane_V__n[__i] + (double)50 )  )  ) )  )  * __flag2__n[ ( __i - 43 ) ] )  +  ( time_dependent_potassium_current_X_gate_alpha_X__n[__i] *  ( 1 - __flag2__n[ ( __i - 43 ) ] )  )  ) ;
 			time_dependent_potassium_current_X_gate_beta_X__n[__i] =  (  (  (  ( (double)0.0013 * exp(  (  ( - (double)0.06 )  *  ( membrane_V__n[__i] + (double)20 )  )  ) )  /  ( (double)1 + exp(  (  ( - (double)0.04 )  *  ( membrane_V__n[__i] + (double)20 )  )  ) )  )  * __flag2__n[ ( __i - 43 ) ] )  +  ( time_dependent_potassium_current_X_gate_beta_X__n[__i] *  ( 1 - __flag2__n[ ( __i - 43 ) ] )  )  ) ;
 			time_dependent_potassium_current_Xi__n[__i] =  (  (  (  ( membrane_V__n[__i] >  ( - (double)100 )  )  ?  (  ( (double)2.837 *  ( exp(  ( (double)0.04 *  ( membrane_V__n[__i] + (double)77 )  )  ) - (double)1 )  )  /  (  ( membrane_V__n[__i] + (double)77 )  * exp(  ( (double)0.04 *  ( membrane_V__n[__i] + (double)35 )  )  ) )  )  : (double)1 )  * __flag2__n[ ( __i - 43 ) ] )  +  ( time_dependent_potassium_current_Xi__n[__i] *  ( 1 - __flag2__n[ ( __i - 43 ) ] )  )  ) ;
@@ -1979,13 +1981,8 @@ int main ( int argc , char** argv ) {
 			fast_sodium_current_m_gate_alpha_m__n[__i] =  (  (  (  ( (double)0.32 *  ( membrane_V__n[__i] + (double)47.13 )  )  /  ( (double)1 - exp(  (  ( - (double)0.1 )  *  ( membrane_V__n[__i] + (double)47.13 )  )  ) )  )  * __flag2__n[ ( __i - 43 ) ] )  +  ( fast_sodium_current_m_gate_alpha_m__n[__i] *  ( 1 - __flag2__n[ ( __i - 43 ) ] )  )  ) ;
 			fast_sodium_current_h_gate_beta_h__n[__i] =  (  (  (  ( membrane_V__n[__i] <  ( - (double)40 )  )  ?  (  ( (double)3.56 * exp(  ( (double)0.079 * membrane_V__n[__i] )  ) )  +  ( (double)310000 * exp(  ( (double)0.35 * membrane_V__n[__i] )  ) )  )  :  ( (double)1 /  ( (double)0.13 *  ( (double)1 + exp(  (  ( membrane_V__n[__i] + (double)10.66 )  /  ( - (double)11.1 )  )  ) )  )  )  )  * __flag2__n[ ( __i - 43 ) ] )  +  ( fast_sodium_current_h_gate_beta_h__n[__i] *  ( 1 - __flag2__n[ ( __i - 43 ) ] )  )  ) ;
 		}
-		if(myrank == root) co2 = MPI_Wtime();
+		//con2 = MPI_Wtime();
 		//----------------------------- LOOP END -----------------------------//
-
-		//Shortest Calculation Order:0
-		//----------------------------  NO LOOP: start:null end:null ----------------------------//
-			//X0end = X0end;
-		//------------------------------- END -------------------------------//
 
 		/*同期部分*/
 		MPI_Wait(&reqs[0], &status);
@@ -1994,8 +1991,12 @@ int main ( int argc , char** argv ) {
 			MPI_Wait(&reqs[2], &status);
 			MPI_Wait(&reqs[3], &status);
 		}
-		if(myrank == root) en = MPI_Wtime();
+		//en = MPI_Wtime();
 
+		//Shortest Calculation Order:0
+		//----------------------------  NO LOOP: start:null end:null ----------------------------//
+		//	X0end = X0end;
+		//------------------------------- END -------------------------------//
 
 		/* REVISION: correct the boundary condition equations (remove unneccessary flags) */
 
@@ -2047,73 +2048,100 @@ int main ( int argc , char** argv ) {
 
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=144; __i<=144; __i++){
 			 membrane_V__n[144] = membrane_V__n[143] ;
+		}
 		//----------------------------- LOOP END -----------------------------//
 
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=154; __i<=154; __i++){
 			 membrane_V__n[154] = membrane_V__n[155] ;
+		}
 		//----------------------------- LOOP END -----------------------------//
 
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=175; __i<=175; __i++){
 			 membrane_V__n[175] = membrane_V__n[205] ;
+		}
 		//----------------------------- LOOP END -----------------------------//
 
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=183; __i<=183; __i++){
 			 membrane_V__n[183] = membrane_V__n[184] ;
+		}
 		//----------------------------- LOOP END -----------------------------//
 
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=206; __i<=206; __i++){
 			 membrane_V__n[206] = membrane_V__n[205] ;
+		}
 		//----------------------------- LOOP END -----------------------------//
 
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=212; __i<=212; __i++){
 			 membrane_V__n[212] = membrane_V__n[213] ;
+		}
 		//----------------------------- LOOP END -----------------------------//
 
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=237; __i<=237; __i++){
 			 membrane_V__n[237] = membrane_V__n[236] ;
+		}
 		//----------------------------- LOOP END -----------------------------//
 
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=242; __i<=242; __i++){
 			 membrane_V__n[242] = membrane_V__n[243] ;
+		}
 		//----------------------------- LOOP END -----------------------------//
-
 
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=267; __i<=267; __i++){
 			 membrane_V__n[267] = membrane_V__n[297] ;
+		}
 		//----------------------------- LOOP END -----------------------------//
 
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=271; __i<=271; __i++){
 			 membrane_V__n[271] = membrane_V__n[272] ;
+		}
 		//----------------------------- LOOP END -----------------------------//
 
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=284; __i<=284; __i++){
 			 membrane_V__n[284] = membrane_V__n[254] ;
+		}
 		//----------------------------- LOOP END -----------------------------//
 
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=285; __i<=285; __i++){
 			 membrane_V__n[285] = membrane_V__n[286] ;
+		}
 		//----------------------------- LOOP END -----------------------------//
 
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=298; __i<=298; __i++){
 			 membrane_V__n[298] = membrane_V__n[297] ;
+		}
 		//----------------------------- LOOP END -----------------------------//
 
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=301; __i<=301; __i++){
 			 membrane_V__n[301] = membrane_V__n[302] ;
+		}
 		//----------------------------- LOOP END -----------------------------//
 
 		//Shortest Calculation Order:0
@@ -2125,32 +2153,44 @@ int main ( int argc , char** argv ) {
 
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=328; __i<=328; __i++){
 			 membrane_V__n[328] = membrane_V__n[327] ;
+		}
 		//----------------------------- LOOP END -----------------------------//
 
 		//Shortes= membrane_V__n[der:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=330; __i<=330; __i++){
 			 membrane_V__n[330] = membrane_V__n[331] ;
+		}
 		//----------------------------- LOOP END -----------------------------//
 
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=341; __i<=341; __i++){
 			 membrane_V__n[341] = membrane_V__n[311] ;
+		}
 		//----------------------------- LOOP END -----------------------------//
 
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=348; __i<=348; __i++){
 			 membrane_V__n[348] = membrane_V__n[349] ;
+		}
 		//----------------------------- LOOP END -----------------------------//
 
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=359; __i<=359; __i++){
 			 membrane_V__n[359] = membrane_V__n[358] ;
+		}
 		//----------------------------- LOOP END -----------------------------//
 
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=360; __i<=360; __i++){
 			 membrane_V__n[360] = membrane_V__n[361] ;
+		}
 		//----------------------------- LOOP END -----------------------------//
 
 		//Shortest Calculation Order:0
@@ -2162,93 +2202,128 @@ int main ( int argc , char** argv ) {
 
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=389; __i<=389; __i++){
 			 membrane_V__n[389] = membrane_V__n[388] ;
+		}
 		//----------------------------- LOOP END -----------------------------//
 
 		//Shortes= membrane_V__n[der:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=390; __i<=390; __i++){
 			 membrane_V__n[390] = membrane_V__n[391] ;
+		}
 		//----------------------------- LOOP END -----------------------------//
 
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=400; __i<=400; __i++){
 			 membrane_V__n[400] = membrane_V__n[399] ;
+		}
 		//----------------------------- LOOP END -----------------------------//
 
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=409; __i<=409; __i++){
 			 membrane_V__n[409] = membrane_V__n[410] ;
+		}
 		//----------------------------- LOOP END -----------------------------//
 
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=419; __i<=419; __i++){
 			 membrane_V__n[419] = membrane_V__n[418] ;
+		}
 		//----------------------------- LOOP END -----------------------------//
 
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=420; __i<=420; __i++){
 			 membrane_V__n[420] = membrane_V__n[421] ;
+		}
 		//----------------------------- LOOP END -----------------------------//
 
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=429; __i<=429; __i++){
 			 membrane_V__n[429] = membrane_V__n[399] ;
+		}
 		//----------------------------- LOOP END -----------------------------//
 
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=440; __i<=440; __i++){
 			 membrane_V__n[440] = membrane_V__n[441] ;
+		}
 		//----------------------------- LOOP END -----------------------------//
 
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=449; __i<=449; __i++){
 			 membrane_V__n[449] = membrane_V__n[448] ;
+		}
 		//----------------------------- LOOP END -----------------------------//
 
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=450; __i<=450; __i++){
 			 membrane_V__n[450] = membrane_V__n[451] ;
+		}
 		//----------------------------- LOOP END -----------------------------//
-
 
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=459; __i<=459; __i++){
 			 membrane_V__n[459] = membrane_V__n[489] ;
+		}
 		//----------------------------- LOOP END -----------------------------//
 
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=470; __i<=470; __i++){
 			 membrane_V__n[470] = membrane_V__n[471] ;
+		}
 		//----------------------------- LOOP END -----------------------------//
 
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=479; __i<=479; __i++){
 			 membrane_V__n[479] = membrane_V__n[478] ;
+		}
 		//----------------------------- LOOP END -----------------------------//
 
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=480; __i<=480; __i++){
 			 membrane_V__n[480] = membrane_V__n[481] ;
+		}
 		//----------------------------- LOOP END -----------------------------//
 
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=490; __i<=490; __i++){
 			 membrane_V__n[490] = membrane_V__n[489] ;
+		}
 		//----------------------------- LOOP END -----------------------------//
 
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=499; __i<=499; __i++){
 			 membrane_V__n[499] = membrane_V__n[500] ;
+		}
 		//----------------------------- LOOP END -----------------------------//
 
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=509; __i<=509; __i++){
 			 membrane_V__n[509] = membrane_V__n[508] ;
+		}
 		//----------------------------- LOOP END -----------------------------//
 
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=510; __i<=510; __i++){
 			 membrane_V__n[510] = membrane_V__n[511] ;
+		}
 		//----------------------------- LOOP END -----------------------------//
 
 		//Shortest Calculation Order:0
@@ -2260,32 +2335,44 @@ int main ( int argc , char** argv ) {
 
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=539; __i<=539; __i++){
 			 membrane_V__n[539] = membrane_V__n[538] ;
+		}
 		//----------------------------- LOOP END -----------------------------//
 
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=540; __i<=540; __i++){
 			 membrane_V__n[540] = membrane_V__n[541] ;
+		}
 		//----------------------------- LOOP END -----------------------------//
 
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=551; __i<=551; __i++){
 			 membrane_V__n[551] = membrane_V__n[581] ;
+		}
 		//----------------------------- LOOP END --------membrane_V__n[-----//
 
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=558; __i<=558; __i++){
 			 membrane_V__n[558] = membrane_V__n[559] ;
+		}
 		//----------------------------- LOOP END -----------------------------//
 
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=569; __i<=569; __i++){
 			 membrane_V__n[569] = membrane_V__n[568] ;
+		}
 		//----------------------------- LOOP END -----------------------------//
 
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=571; __i<=571; __i++){
 			 membrane_V__n[571] = membrane_V__n[572] ;
+		}
 		//----------------------------- LOOP END -----------------------------//
 
 		//Shortest Calculation Order:0
@@ -2297,83 +2384,114 @@ int main ( int argc , char** argv ) {
 
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=598; __i<=598; __i++){
 			 membrane_V__n[598] = membrane_V__n[597] ;
+		}
 		//----------------------------- LOOP END -----------------------------//
 
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=601; __i<=601; __i++){
 			 membrane_V__n[601] = membrane_V__n[602] ;
+		}
 		//----------------------------- LOOP END -----------------------------//
 
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=614; __i<=614; __i++){
 			 membrane_V__n[614] = membrane_V__n[644] ;
+		}
 		//----------------------------- LOOP END -----------------------------//
 
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=615; __i<=615; __i++){
 			 membrane_V__n[615] = membrane_V__n[616] ;
+		}
 		//----------------------------- LOOP END -----------------------------//
 
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=628; __i<=628; __i++){
 			 membrane_V__n[628] = membrane_V__n[627] ;
+		}
 		//----------------------------- LOOP END -----------------------------//
 
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=632; __i<=632; __i++){
 			 membrane_V__n[632] = membrane_V__n[633] ;
+		}
 		//----------------------------- LOOP END -----------------------------//
-
 
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=657; __i<=657; __i++){
 			 membrane_V__n[657] = membrane_V__n[627] ;
+		}
 		//----------------------------- LOOP END -----------------------------//
 
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=662; __i<=662; __i++){
 			 membrane_V__n[662] = membrane_V__n[663] ;
+		}
 		//----------------------------- LOOP END -----------------------------//
 
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=687; __i<=687; __i++){
 			 membrane_V__n[687] = membrane_V__n[686] ;
+		}
 		//----------------------------- LOOP END -----------------------------//
 
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=693; __i<=693; __i++){
 			 membrane_V__n[693] = membrane_V__n[694] ;
+		}
 		//----------------------------- LOOP END -----------------------------//
 
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=716; __i<=716; __i++){
 			 membrane_V__n[716] = membrane_V__n[715] ;
+		}
 		//----------------------------- LOOP END -----------------------------//
 
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=724; __i<=724; __i++){
 			 membrane_V__n[724] = membrane_V__n[725] ;
+		}
 		//----------------------------- LOOP END -----------------------------//
 
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=745; __i<=745; __i++){
 			 membrane_V__n[745] = membrane_V__n[715] ;
+		}
 		//----------------------------- LOOP END -----------------------------//
 
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=755; __i<=755; __i++){
 			 membrane_V__n[755] = membrane_V__n[756] ;
+		}
 		//----------------------------- LOOP END -----------------------------//
 
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=774; __i<=774; __i++){
 			 membrane_V__n[774] = membrane_V__n[773] ;
+		}
 		//----------------------------- LOOP END -----------------------------//
 
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=786; __i<=786; __i++){
 			 membrane_V__n[786] = membrane_V__n[787] ;
+		}
 		//----------------------------- LOOP END -----------------------------//
 
 		//Shortest Calculation Order:0
@@ -2385,7 +2503,9 @@ int main ( int argc , char** argv ) {
 
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=818; __i<=818; __i++){
 			 membrane_V__n[818] = membrane_V__n[819] ;
+		}
 		//----------------------------- LOOP END -----------------------------//
 
 		//Shortest Calculation Order:0
@@ -2397,7 +2517,9 @@ int main ( int argc , char** argv ) {
 
 		//Shortest Calculation Order:0
 		//---------------------------- LOOP ----------------------------//
+		for(__i=850; __i<=850; __i++){
 			 membrane_V__n[850] = membrane_V__n[851] ;
+		}
 		//----------------------------- LOOP END -----------------------------//
 
 		//Shortest Calculation Order:0
@@ -2409,22 +2531,22 @@ int main ( int argc , char** argv ) {
 
 		//Shortest Calculation Order:0
 		//----------------------------  NO LOOP: start:null end:null ----------------------------//
-			//X1end = X1end;
+		//	X1end = X1end;
 		//------------------------------- END -------------------------------//
 
 		//Shortest Calculation Order:0
 		//----------------------------  NO LOOP: start:null end:null ----------------------------//
-			//V0end = V0end;
+		//	V0end = V0end;
 		//------------------------------- END -------------------------------//
 
 		//Shortest Calculation Order:0
 		//----------------------------  NO LOOP: start:null end:null ----------------------------//
-			//V1end = V1end;
+		//	V1end = V1end;
 		//------------------------------- END -------------------------------//
 
 		//Shortest Calculation Order:0
 		//----------------------------  NO LOOP: start:null end:null ----------------------------//
-			//membrane_time = membrane_time;
+		//	membrane_time = membrane_time;
 		//------------------------------- END -------------------------------//
 
 		/* REVISION: added the equation with differential equations TODO: revise the stimulation equation */
@@ -2432,7 +2554,7 @@ int main ( int argc , char** argv ) {
 		//---------------------------- LOOP ----------------------------//
 		double stim = 0;
 
-		for(__i = 43 + calcindex * myrank; __i <= mycalc; __i++){
+		for(__i = sourcebuf; __i <= mycalc; __i++){
 		//for(__i=43; __i<=858; __i++){
 			slow_inward_current_d__n1[__i] =  ( ( slow_inward_current_d__n[__i] + deltat * (  ( slow_inward_current_d_gate_alpha_d__n[__i] *  ( (double)1 - slow_inward_current_d__n[__i] )  )  -  ( slow_inward_current_d_gate_beta_d__n[__i] * slow_inward_current_d__n[__i] )  ) ) * __flag105__n[ ( __i - 43 ) ] )  + ( slow_inward_current_d__n1[__i] * ( 1 - __flag105__n[ ( __i - 43 ) ] ) ) ;
 			fast_sodium_current_j__n1[__i] =  ( ( fast_sodium_current_j__n[__i] + deltat * (  ( fast_sodium_current_j_gate_alpha_j__n[__i] *  ( (double)1 - fast_sodium_current_j__n[__i] )  )  -  ( fast_sodium_current_j_gate_beta_j__n[__i] * fast_sodium_current_j__n[__i] )  ) ) * __flag105__n[ ( __i - 43 ) ] )  + ( fast_sodium_current_j__n1[__i] * ( 1 - __flag105__n[ ( __i - 43 ) ] ) ) ;
@@ -2452,15 +2574,13 @@ int main ( int argc , char** argv ) {
 			} else {
 				membrane_I_stim__n[__i] =  0 ;
 			}
-
 		}
 		//----------------------------- LOOP END -----------------------------//
 
 		/* REVISION: added the equation with differential equations */
 		//Shortest Calculation Order:2
 		//---------------------------- LOOP ----------------------------//
-
-		for(__i = 43 + calcindex * myrank; __i <= mycalc; __i++){
+		for(__i = sourcebuf; __i <= mycalc; __i++){
 		//for(__i=43; __i<=858; __i++){
 			slow_inward_current_Cai__n1[__i] = ( ( slow_inward_current_Cai__n[__i] + deltat * (  (  (  ( - (double)0.0001 )  / (double)1 )  * membrane_i_si__n[__i] )  +  ( (double)0.07 *  ( (double)0.0001 - slow_inward_current_Cai__n[__i] )  )  ) ) * __flag118__n[ ( __i - 43 ) ] ) + ( slow_inward_current_Cai__n1[__i] * ( 1 - __flag118__n[ ( __i - 43 ) ] ) );
 			membrane_i_Kp__n[__i] =  (  (  ( plateau_potassium_current_g_Kp * plateau_potassium_current_Kp__n[__i] *  ( membrane_V__n[__i] - plateau_potassium_current_E_Kp__n[__i] )  )  * __flag118__n[ ( __i - 43 ) ] )  +  ( membrane_i_Kp__n[__i] *  ( 1 - __flag118__n[ ( __i - 43 ) ] )  )  ) ;
@@ -2470,8 +2590,7 @@ int main ( int argc , char** argv ) {
 
 		//Shortest Calculation Order:3
 		//---------------------------- LOOP ----------------------------//
-
-		for(__i = 43 + calcindex * myrank; __i <= mycalc; __i++){
+		for(__i = sourcebuf; __i <= mycalc; __i++){
 		//for(__i=43; __i<=858; __i++){
 			membrane_i_K1__n[__i] =  (  (  ( time_independent_potassium_current_g_K1__n[__i] * time_independent_potassium_current_K1_infinity__n[__i] *  ( membrane_V__n[__i] - time_independent_potassium_current_E_K1__n[__i] )  )  * __flag121__n[ ( __i - 43 ) ] )  +  ( membrane_i_K1__n[__i] *  ( 1 - __flag121__n[ ( __i - 43 ) ] )  )  ) ;
 		}
@@ -2480,8 +2599,7 @@ int main ( int argc , char** argv ) {
 		/* REVISION: added the equation with differential equations */
 		//Shortest Calculation Order:4
 		//---------------------------- LOOP ----------------------------//
-
-		for(__i = 43 + calcindex * myrank; __i <= mycalc; __i++){
+		for(__i = sourcebuf; __i <= mycalc; __i++){
 		//for(__i=43; __i<=858; __i++){
 			membrane_V__n1[__i]  =  (  (  ( membrane_V__n[__i] + deltat * ( (  (  ( - (double)1 )  / membrane_C )  *  ( membrane_I_stim__n[__i] + membrane_i_Na__n[__i] + membrane_i_si__n[__i] + membrane_i_K__n[__i] + membrane_i_K1__n[__i] + membrane_i_Kp__n[__i] + membrane_i_b__n[__i] )  )  +  ( membrane_D *  (  ( membrane_V__n[ ( __i + 1 ) ] +  ( -  ( (double)2 * membrane_V__n[__i] )  )  + membrane_V__n[__i-1] )  /  ( deltax1 * deltax1 )  )  )  +  ( membrane_D *  (  ( membrane_V__n[__i+30] +  ( -  ( (double)2 * membrane_V__n[__i] )  )  + membrane_V__n[__i-30] )  /  ( deltax2 * deltax2 )  )  )  ) ) * __flag122__n[ ( __i - 43 ) ] )  +  (  membrane_V__n1[__i]  *  ( 1 - __flag122__n[ ( __i - 43 ) ] )  )  ) ;
 		}
@@ -2489,13 +2607,13 @@ int main ( int argc , char** argv ) {
 
 		/* REVISION: print current time */
 		/*if(myrank == root){
-			if (timeCount % (100) == 0) {
+			if (timeCount % 100 == 0) {
 				printf("%f ", membrane_time);
 			}
 		}*/
-		/* REVISION: reassign the results of index n1(n+1) to index n TODO: harmonize with structured relml version */
 
-		for(__i = 43 + calcindex * myrank; __i <= mycalc; __i++){
+		/* REVISION: reassign the results of index n1(n+1) to index n TODO: harmonize with structured relml version */
+		for(__i = sourcebuf; __i <= mycalc; __i++){
 		//for(__i=43; __i<=858; __i++){
 			fast_sodium_current_j__n[__i] = fast_sodium_current_j__n1[__i];
 			fast_sodium_current_h__n[__i] = fast_sodium_current_h__n1[__i];
@@ -2504,10 +2622,9 @@ int main ( int argc , char** argv ) {
 			fast_sodium_current_m__n[__i] = fast_sodium_current_m__n1[__i];
 			slow_inward_current_f__n[__i] = slow_inward_current_f__n1[__i];
 			membrane_V__n[__i] = membrane_V__n1[__i];
-
 			/* REVISION: print a partial part of results (oppossite ends of the morphology) */
 			/*if(myrank == root){
-				if (timeCount % (100) == 0) {
+				if (timeCount % 100 == 0) {
 					if ( __i>=43 && __i<51) {
 						printf("%f ", membrane_V__n1[__i]);
 					}
@@ -2520,15 +2637,15 @@ int main ( int argc , char** argv ) {
 
 		/* REVISION: print a partial part of results */
 		/*if(myrank == root){
-			if (timeCount % (100) == 0) {
+			if (timeCount % 100 == 0) {
 				printf("\n");
 			}
 		}*/
 
-		/*通信時間の出力*/
+		/*通信時間計測出力*/
 		/*if(myrank == root){
-			if(timeCount % 100 == 0) {
-				printf("time = %.6f\n", en-st-co2+co1);
+			if (timeCount % 100 == 0) {
+				printf("%.6f\n", en-st-(con2-con1));
 			}
 		}*/
 
@@ -2536,9 +2653,6 @@ int main ( int argc , char** argv ) {
 		timeCount =  ( timeCount + 1 ) ;
 
 	}
-
-	/*membrane_V__n_tempの開放*/
-	//free ( membrane_V__n_temp ) ;
 
 	free ( V0end ) ;
 	free ( V1end ) ;
@@ -2606,8 +2720,6 @@ int main ( int argc , char** argv ) {
 	free ( __flag118__n ) ;
 	free ( __flag121__n ) ;
 	free ( __flag122__n ) ;
-
-	MPI_Finalize();
 
 	/********
 	* Discretization time was 	134 s.

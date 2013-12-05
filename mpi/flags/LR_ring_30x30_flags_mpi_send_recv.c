@@ -1968,10 +1968,10 @@ int main ( int argc , char** argv ) {
 
 		/*MPI_Send,Recvを用いた双方向通信*/
 		if(myrank == root) {
-			st = MPI_Wtime();
+			//st = MPI_Wtime();
 			MPI_Send(&membrane_V__n[mycalc-29], 30, MPI_DOUBLE, myrank+1, tag, MPI_COMM_WORLD);
 			MPI_Recv(&membrane_V__n[mycalc+1], 30, MPI_DOUBLE, myrank+1, tag, MPI_COMM_WORLD, &recv_status);
-			en = MPI_Wtime();
+			//en = MPI_Wtime();
 		} else if (myrank != root && myrank != nodenum-1){
 			MPI_Recv(&membrane_V__n[sourcebuf-30], 30, MPI_DOUBLE, myrank-1, tag, MPI_COMM_WORLD, &recv_status);
 			MPI_Send(&membrane_V__n[mycalc-29], 30, MPI_DOUBLE, myrank+1, tag, MPI_COMM_WORLD);
