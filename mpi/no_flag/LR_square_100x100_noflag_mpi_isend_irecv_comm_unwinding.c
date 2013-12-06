@@ -679,13 +679,13 @@ int main ( int argc , char** argv ) {
 				printf("%f ", membrane_time);
 
 				for(__i = sourcebuf; __i <= mycalc; __i++){
-					if ( arrayindex>=980 && arrayindex<=985) {
-						printf("%f ", membrane_V__n1[arrayindex]);
+					if ( __i>=980 && __i<=985) {
+						printf("%f ", membrane_V__n1[__i]);
 					}
-					if ( arrayindex==3000 ) {
+					if ( __i==3000 ) {
 						printf(" <--- stim start : array end ---> ");
 					}
-					if ( arrayindex>=7840 && arrayindex<=7842) {
+					if ( __i>=7840 && __i<=7842) {
 						printf("%f ", membrane_V__n1[__i]);
 					}
 				}
