@@ -502,6 +502,9 @@ int main ( int argc , char** argv ) {
 		for(__i = sourcebuf; __i <= mycalc; __i++){
 		//for(__i=0; __i<__MAX_MATERIAL_NUM; __i++){
 			membrane_V__n1[__i]  =  ( membrane_V__n[__i] + deltat * ( (  (  ( - (double)1 )  / membrane_C )  *  ( membrane_I_stim__n[__i] + membrane_i_Na__n[__i] + membrane_i_si__n[__i] + membrane_i_K__n[__i] + membrane_i_K1__n[__i] + membrane_i_Kp__n[__i] + membrane_i_b__n[__i] )  )  +  ( membrane_D *  (  ( membrane_V__n[ ( R[__i] ) ] +  ( -  ( (double)2 * membrane_V__n[__i] )  )  + membrane_V__n[ ( L[__i] ) ] )  /  ( deltax1 * deltax1 )  )  )  +  ( membrane_D *  (  ( membrane_V__n[ ( D[__i] )] +  ( -  ( (double)2 * membrane_V__n[__i] )  )  + membrane_V__n[ ( U[__i] ) ] )  /  ( deltax2 * deltax2 )  )  )  ) ) ;
+		}
+
+		for(__i = sourcebuf; __i <= mycalc; __i++){
 			membrane_V__n[__i] = membrane_V__n1[__i];
 		}
 
