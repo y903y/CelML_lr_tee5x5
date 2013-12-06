@@ -21,8 +21,10 @@ int main ( int argc , char** argv ) {
 	int myrank;
 	/*ノード数を保持する変数*/
 	int nodenum;
+	/*MPI_Isend,Irecv用のリクエスト*/
+	MPI_Request reqs[4];
 	/*MPIのステータスを保持する変数*/
-	MPI_Status recv_status;
+	MPI_Status recv_status, status;
 	/*通信のタグ識別子を保持する変数*/
 	int tag = 0;
 	/*計算範囲*/
@@ -47,8 +49,8 @@ int main ( int argc , char** argv ) {
 
 
 	/*MPIの計算部分指定*/
-	int calcindex = (859-43)/nodenum;
-	int mycalc = 43 + (calcindex * myrank) + calcindex - 1;
+	calcindex = (859-43)/nodenum;
+	mycalc = 43 + (calcindex * myrank) + calcindex - 1;
 	if((859-43) % nodenum != 0 && myrank == nodenum - 1) mycalc += (859-43) % nodenum;
 	if(calcindex == 0) {
 		printf("ノード数が多すぎ今のところ対応していません\n");
