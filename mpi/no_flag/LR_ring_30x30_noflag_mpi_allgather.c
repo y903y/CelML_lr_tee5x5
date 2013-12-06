@@ -526,6 +526,9 @@ int main ( int argc , char** argv ) {
 
 	}
 
+	/*membrane_V__n_tempの開放*/
+	free ( membrane_V__n_temp ) ;
+
 	free ( fast_sodium_current_E_Na__n ) ;
 	free ( fast_sodium_current_h__n ) ;
 	free ( fast_sodium_current_h__n1 ) ;

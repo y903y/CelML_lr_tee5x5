@@ -685,6 +685,9 @@ int main ( int argc , char** argv ) {
 
 	}
 
+	/*membrane_V__n_tempの開放*/
+	free ( membrane_V__n_temp ) ;
+
 	free ( V0end ) ;
 	free ( V1end ) ;
 	free ( X0end ) ;
