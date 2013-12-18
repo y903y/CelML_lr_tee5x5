@@ -23,8 +23,8 @@ typedef struct mpi {
 	double* recvdata;
 } MPI;
 
-void mpiRecv(double *data, int num, int recvNum,struct mpi p);
-void mpiSend(double *data, int num, int recvNum,struct mpi p);
+void mpiRecv(double *data, int num, int recvNum,struct mpi* p);
+void mpiSend(double *data, int num, int recvNum,struct mpi* p);
 void readcsvint(int**, char*);
 
 int main(int argc, char **argv);
@@ -102,12 +102,12 @@ int main(int argc, char **argv) {
 			/**********送るべき配列の作成*****************/
 
 			/**send 1番のノードに1つだけ送る**/
-			mpiSend(p.senddata, sendnum, 1,p);
+			mpiSend(p.senddata, sendnum, 1,&p);
 
 			/**recv 1番のノードからひとつ受け取る**/
 			int recvnum = 1;
 			p.recvdata = (double*) malloc(sizeof(double) * sendnum);
-			mpiRecv(p.recvdata, recvnum, 1,p);
+			mpiRecv(p.recvdata, recvnum, 1,&p);
 
 			MPI_Wait(p.reqs, p.status); //受信用
 			MPI_Wait(p.reqs + 1, p.status + 1); //受信用
@@ -171,12 +171,12 @@ int main(int argc, char **argv) {
 			/**********送るべき配列の作成*****************/
 
 			/**send 1番のノードに1つだけ送る**/
-			mpiSend(p.senddata, sendnum, 1,p);
+			mpiSend(p.senddata, sendnum, 1,&p);
 
 			/**recv 1番のノードからひとつ受け取る**/
 			int recvnum = 1;
 			p.recvdata = (double*) malloc(sizeof(double) * sendnum);
-			mpiRecv(p.recvdata, recvnum, 1,p);
+			mpiRecv(p.recvdata, recvnum, 1,&p);
 
 			MPI_Wait(p.reqs, p.status); //受信用
 			MPI_Wait(p.reqs + 1, p.status + 1); //受信用
@@ -230,9 +230,9 @@ int main(int argc, char **argv) {
  *
  * */
 
-void mpiSend(double *data, int num, int sendNum, struct mpi p) {
+void mpiSend(double *data, int num, int sendNum, struct mpi* p) {
 	//int p.tag = 0;
-	MPI_Isend(data, num, MPI_DOUBLE, sendNum, p.tag, MPI_COMM_WORLD, p.reqs);
+	MPI_Isend(data, num, MPI_DOUBLE, sendNum, p->tag, MPI_COMM_WORLD, p->reqs);
 }
 
 /***
@@ -245,10 +245,10 @@ void mpiSend(double *data, int num, int sendNum, struct mpi p) {
  *
  * */
 
-void mpiRecv(double *data, int num, int recvNum,struct mpi p) {
+void mpiRecv(double *data, int num, int recvNum,struct mpi* p) {
 	//int tag = 0;
-	MPI_Irecv(data, num, MPI_DOUBLE, recvNum, p.tag, MPI_COMM_WORLD,
-			p.reqs + 1);
+	MPI_Irecv(data, num, MPI_DOUBLE, recvNum, p->tag, MPI_COMM_WORLD,
+			p->reqs + 1);
 
 }
 
