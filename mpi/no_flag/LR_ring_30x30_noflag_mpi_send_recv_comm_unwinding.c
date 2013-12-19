@@ -496,14 +496,16 @@ int main ( int argc , char** argv ) {
 				MPI_Recv(&membrane_V__n[129], 47, MPI_DOUBLE, 1, tag, MPI_COMM_WORLD, &recv_status);
 				//en = MPI_Wtime();
 			} else if (myrank ==1){
+				//st = MPI_Wtime();
 				MPI_Recv(&membrane_V__n[82], 47, MPI_DOUBLE, 0, tag, MPI_COMM_WORLD, &recv_status);
+				MPI_Send(&membrane_V__n[129], 47, MPI_DOUBLE, 0, tag, MPI_COMM_WORLD);
 				MPI_Send(&membrane_V__n[224], 34, MPI_DOUBLE, 2, tag, MPI_COMM_WORLD);
 				MPI_Recv(&membrane_V__n[258], 34, MPI_DOUBLE, 2, tag, MPI_COMM_WORLD, &recv_status);
-				MPI_Send(&membrane_V__n[129], 47, MPI_DOUBLE, 0, tag, MPI_COMM_WORLD);
+				//en = MPI_Wtime();
 			} else if (myrank == 2) {
-				MPI_Recv(&membrane_V__n[224], 34, MPI_DOUBLE, 1, tag, MPI_COMM_WORLD, &recv_status);
 				MPI_Send(&membrane_V__n[340], 47, MPI_DOUBLE, 3, tag, MPI_COMM_WORLD);
 				MPI_Recv(&membrane_V__n[387], 47, MPI_DOUBLE, 3, tag, MPI_COMM_WORLD, &recv_status);
+				MPI_Recv(&membrane_V__n[224], 34, MPI_DOUBLE, 1, tag, MPI_COMM_WORLD, &recv_status);
 				MPI_Send(&membrane_V__n[258], 34, MPI_DOUBLE, 1, tag, MPI_COMM_WORLD);
 			} else if (myrank == nodenum-1){
 				MPI_Recv(&membrane_V__n[340], 47, MPI_DOUBLE, 2, tag, MPI_COMM_WORLD, &recv_status);
@@ -513,6 +515,11 @@ int main ( int argc , char** argv ) {
 
 		/*通信時間計測出力*/
 		/*if(myrank == root){
+			if(timeCount % 100 == 0) {
+				printf("%.6f\n", en-st);
+			}
+		}*/
+		/*if(myrank == 1){
 			if(timeCount % 100 == 0) {
 				printf("%.6f\n", en-st);
 			}

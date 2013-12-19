@@ -277,9 +277,7 @@ int main ( int argc , char** argv ) {
 			membrane_i_b__n[__i] =  ( background_current_g_b *  ( membrane_V__n[__i] - background_current_E_b )  ) ;
 			fast_sodium_current_j_gate_beta_j__n[__i] =  (  ( membrane_V__n[__i] <  ( - (double)40 )  )  ?  (  ( (double)0.1212 * exp(  (  ( - (double)0.01052 )  * membrane_V__n[__i] )  ) )  /  ( (double)1 + exp(  (  ( - (double)0.1378 )  *  ( membrane_V__n[__i] + (double)40.14 )  )  ) )  )  :  (  ( (double)0.3 * exp(  (  ( - (double)0.0000002535 )  * membrane_V__n[__i] )  ) )  /  ( (double)1 + exp(  (  ( - (double)0.1 )  *  ( membrane_V__n[__i] + (double)32 )  )  ) )  )  ) ;
 			time_dependent_potassium_current_g_K__n[__i] =  ( time_dependent_potassium_current_g_Kbar * sqrt(  ( time_independent_potassium_current_Ko / (double)5.4 )  ) ) ;
-
 			time_dependent_potassium_current_E_K__n[__i] =  (  (  ( membrane_R * membrane_T )  / membrane_F )  * log(  (  ( time_independent_potassium_current_Ko +  ( time_dependent_potassium_current_PR_NaK * time_dependent_potassium_current_Nao )  )  /  ( time_independent_potassium_current_Ki +  ( time_dependent_potassium_current_PR_NaK * time_dependent_potassium_current_Nai )  )  )  ) ) ;
-
 			time_dependent_potassium_current_X_gate_alpha_X__n[__i] =  (  ( (double)0.0005 * exp(  ( (double)0.083 *  ( membrane_V__n[__i] + (double)50 )  )  ) )  /  ( (double)1 + exp(  ( (double)0.057 *  ( membrane_V__n[__i] + (double)50 )  )  ) )  ) ;
 			time_dependent_potassium_current_X_gate_beta_X__n[__i] =  (  ( (double)0.0013 * exp(  (  ( - (double)0.06 )  *  ( membrane_V__n[__i] + (double)20 )  )  ) )  /  ( (double)1 + exp(  (  ( - (double)0.04 )  *  ( membrane_V__n[__i] + (double)20 )  )  ) )  ) ;
 			time_dependent_potassium_current_Xi__n[__i] =  (  ( membrane_V__n[__i] >  ( - (double)100 )  )  ?  (  ( (double)2.837 *  ( exp(  ( (double)0.04 *  ( membrane_V__n[__i] + (double)77 )  )  ) - (double)1 )  )  /  (  ( membrane_V__n[__i] + (double)77 )  * exp(  ( (double)0.04 *  ( membrane_V__n[__i] + (double)35 )  )  ) )  )  : (double)1 ) ;
@@ -300,15 +298,24 @@ int main ( int argc , char** argv ) {
 			MPI_Send(&membrane_V__n[U[mycalc+1]], (mycalc-U[mycalc+1])+1, MPI_DOUBLE, myrank+1, tag, MPI_COMM_WORLD);
 			MPI_Recv(&membrane_V__n[mycalc+1], D[mycalc]-mycalc, MPI_DOUBLE, myrank+1, tag, MPI_COMM_WORLD, &recv_status);
 			//en = MPI_Wtime();
-		} else if (myrank != root && myrank != nodenum-1){
+		} else if (myrank == 1){
+			//st = MPI_Wtime();
 			MPI_Recv(&membrane_V__n[U[sourcebuf]], sourcebuf-U[sourcebuf], MPI_DOUBLE, myrank-1, tag, MPI_COMM_WORLD, &recv_status);
+			MPI_Send(&membrane_V__n[sourcebuf], (D[sourcebuf-1]-sourcebuf)+1, MPI_DOUBLE, myrank-1, tag, MPI_COMM_WORLD);
 			MPI_Send(&membrane_V__n[U[mycalc+1]], (mycalc-U[mycalc+1])+1, MPI_DOUBLE, myrank+1, tag, MPI_COMM_WORLD);
 			MPI_Recv(&membrane_V__n[mycalc+1], D[mycalc]-mycalc, MPI_DOUBLE, myrank+1, tag, MPI_COMM_WORLD, &recv_status);
+			//en = MPI_Wtime();
+		}  else if (myrank == 2){
+			MPI_Send(&membrane_V__n[U[mycalc+1]], (mycalc-U[mycalc+1])+1, MPI_DOUBLE, myrank+1, tag, MPI_COMM_WORLD);
+			MPI_Recv(&membrane_V__n[mycalc+1], D[mycalc]-mycalc, MPI_DOUBLE, myrank+1, tag, MPI_COMM_WORLD, &recv_status);
+			MPI_Recv(&membrane_V__n[U[sourcebuf]], sourcebuf-U[sourcebuf], MPI_DOUBLE, myrank-1, tag, MPI_COMM_WORLD, &recv_status);
 			MPI_Send(&membrane_V__n[sourcebuf], (D[sourcebuf-1]-sourcebuf)+1, MPI_DOUBLE, myrank-1, tag, MPI_COMM_WORLD);
 		} else if (myrank == nodenum-1){
 			MPI_Recv(&membrane_V__n[U[sourcebuf]], sourcebuf-U[sourcebuf], MPI_DOUBLE, myrank-1, tag, MPI_COMM_WORLD, &recv_status);
 			MPI_Send(&membrane_V__n[sourcebuf], (D[sourcebuf-1]-sourcebuf)+1, MPI_DOUBLE, myrank-1, tag, MPI_COMM_WORLD);
 		}
+
+
 
 		//----------------------------  NO LOOP: start:null end:null ----------------------------//
 		//X0end = X0end;
@@ -562,6 +569,11 @@ int main ( int argc , char** argv ) {
 
 		/*通信時間計測出力*/
 		/*if(myrank == root){
+			if(timeCount % 100 == 0) {
+				printf("%.6f\n", en-st);
+			}
+		}*/
+		/*if(myrank == 1){
 			if(timeCount % 100 == 0) {
 				printf("%.6f\n", en-st);
 			}
