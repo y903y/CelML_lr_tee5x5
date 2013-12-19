@@ -181,7 +181,7 @@ int main(int argc, char **argv) {
 			mpiRecv(p.recvdata, recvnum, 1, &p);
 
 			MPI_Wait(&p.recvReqs, &p.recvStatus); //受信用
-			MPI_Wait(&p.recvReqs, &p.sendStatus); //受信用
+			MPI_Wait(&p.sendReqs, &p.sendStatus); //受信用
 			v[n % 2][500] = *(p.recvdata);
 
 			//senddata_1_0[0] = v[n%2][501];
@@ -197,7 +197,7 @@ int main(int argc, char **argv) {
 								(double) 1.0 : (double) 0.0);
 				r[n % 2][__meshnum] = (v[n % 2][__meshnum] * v[n % 2][__meshnum]
 						* v[n % 2][__meshnum]);
-				v[(n + 1)%2)][__meshnum] =
+				v[(n + 1)%2][__meshnum] =
 				(v[n%2][__meshnum]
 				+ (((((v[n%2][__meshnum]
 														- (r[n%2][__meshnum] / (double) 3))
