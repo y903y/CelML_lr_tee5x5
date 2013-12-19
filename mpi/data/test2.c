@@ -10,21 +10,24 @@ typedef struct mpi {
 	/**ノード数を保持する変数*/
 	int nodenum;
 	/*MPIのステータスを保持する変数*/
-	MPI_Status status[2];
+	MPI_Status sendStatus;
+	MPI_Status recvStatus;
 	/*通信のタグ識別子を保持する変数*/
 	int tag;
 	/*rootを親ノードとして指定*/
 	int root;
 	/**request waitで待つときに必要*/
-	MPI_Request reqs[2];
+	MPI_Request sendReqs;
+	MPI_Request recvReqs;
+
 	/**sendのデータを格納するための配列*/
 	double* senddata;
 	/**recvのデータを格納するための配列*/
 	double* recvdata;
 } MPI;
 
-void mpiRecv(double *data, int num, int recvNum,struct mpi* p);
-void mpiSend(double *data, int num, int recvNum,struct mpi* p);
+void mpiRecv(double *data, int num, int recvNum, struct mpi* p);
+void mpiSend(double *data, int num, int recvNum, struct mpi* p);
 void readcsvint(int**, char*);
 
 int main(int argc, char **argv);
@@ -71,10 +74,9 @@ int main(int argc, char **argv) {
 	//送信と受信をするので全てのノードの数*2分確保
 	//p.reqs = (MPI_Request*) malloc(sizeof(MPI_Request) * nodenum * 2);
 
-	readcsvint(&xleft, "model/StructuredRecMLPDE/sample6/xleft_sample6.csv");
-	readcsvint(&xright, "model/StructuredRecMLPDE/sample6/xright_sample6.csv");
+	readcsvint(&xleft, "./xleft_sample6.csv");
+	readcsvint(&xright, "./xright_sample6.csv");
 	if (rank == 0) {
-
 		readcsvint(&meshlistT2, "meshlist_T2_0.csv");
 		readcsvint(&meshlistT3, "meshlist_T3_0.csv");
 		readcsvint(&meshlistT1, "meshlist_T1_0.csv");
@@ -83,57 +85,57 @@ int main(int argc, char **argv) {
 			for (__i = 0; (__i < 1); __i++) {
 
 				__meshnum = meshlistT2[__i];
-				v[n][xleft[__meshnum]] = v[n][__meshnum];
+				v[n % 2][xleft[__meshnum]] = v[n % 2][__meshnum];
 
 			}
 
 			for (__i = 0; (__i < 0); __i++) {
 
 				__meshnum = meshlistT3[__i];
-				v[n][xright[__meshnum]] = v[n][__meshnum];
+				v[n % 2][xright[__meshnum]] = v[n % 2][__meshnum];
 
 			}
 
 			//送るべき数に従ってmalloc
 			int sendnum = 1;
 			p.senddata = (double*) malloc(sizeof(double) * sendnum);
-			//double senddata_0_1[0] = v[n][500];
-			*(p.senddata) = v[n][500];
+			//double senddata_0_1[0] = v[n%2][500];
+			*(p.senddata) = v[n % 2][500];
 			/**********送るべき配列の作成*****************/
 
 			/**send 1番のノードに1つだけ送る**/
-			mpiSend(p.senddata, sendnum, 1,&p);
+			mpiSend(p.senddata, sendnum, 1, &p);
 
 			/**recv 1番のノードからひとつ受け取る**/
 			int recvnum = 1;
 			p.recvdata = (double*) malloc(sizeof(double) * sendnum);
-			mpiRecv(p.recvdata, recvnum, 1,&p);
+			mpiRecv(p.recvdata, recvnum, 1, &p);
 
-			MPI_Wait(p.reqs, p.status); //受信用
-			MPI_Wait(p.reqs + 1, p.status + 1); //受信用
-			v[n][501] = *(p.recvdata);
+			MPI_Wait(&p.recvReqs, &p.recvStatus); //受信用
+			MPI_Wait(&p.sendReqs, &p.sendStatus); //受信用
+			v[n % 2][501] = *(p.recvdata);
 			for (__i = 0; (__i < 500); __i++) {
 
 				__meshnum = meshlistT1[__i];
-				zz[n][__meshnum] = (
+				zz[n % 2][__meshnum] = (
 						((n < (double) 10) && __meshnum == (double) 1) ?
 								(double) 1.0 : (double) 0.0);
-				r[n][__meshnum] = (v[n][__meshnum] * v[n][__meshnum]
-						* v[n][__meshnum]);
-				v[(n + 1)][__meshnum] =
-						(v[n][__meshnum]
-								+ (((((v[n][__meshnum]
-										- (r[n][__meshnum] / (double) 3))
-										- w[n][__meshnum]) + zz[n][__meshnum])
-										- ((D
-												* ((v[n][xright[__meshnum]]
-														+ v[n][xleft[__meshnum]])
-														- ((double) 2
-																* v[n][__meshnum])))
-												/ (dx * dx))) * dt));
-				w[(n + 1)][__meshnum] = (w[n][__meshnum]
-						+ (e * ((v[n][__meshnum] + b) - (g * w[n][__meshnum]))
-								* dt));
+				r[n % 2][__meshnum] = (v[n % 2][__meshnum] * v[n % 2][__meshnum]
+						* v[n % 2][__meshnum]);
+				v[(n + 1)][__meshnum] = (v[n % 2][__meshnum]
+						+ (((((v[n % 2][__meshnum]
+								- (r[n % 2][__meshnum] / (double) 3))
+								- w[n % 2][__meshnum]) + zz[n % 2][__meshnum])
+								- ((D
+										* ((v[n % 2][xright[__meshnum]]
+												+ v[n % 2][xleft[__meshnum]])
+												- ((double) 2
+														* v[n % 2][__meshnum])))
+										/ (dx * dx))) * dt));
+				w[(n + 1)][__meshnum] = (w[n % 2][__meshnum]
+						+ (e
+								* ((v[n % 2][__meshnum] + b)
+										- (g * w[n % 2][__meshnum])) * dt));
 
 			}
 			free(p.recvdata);
@@ -153,62 +155,63 @@ int main(int argc, char **argv) {
 			for (__i = 0; (__i < 0); __i++) {
 
 				__meshnum = meshlistT2[__i];
-				v[n][xleft[__meshnum]] = v[n][__meshnum];
+				v[n % 2][xleft[__meshnum]] = v[n % 2][__meshnum];
 
 			}
 
 			for (__i = 0; (__i < 1); __i++) {
 
 				__meshnum = meshlistT3[__i];
-				v[n][xright[__meshnum]] = v[n][__meshnum];
+				v[n % 2][xright[__meshnum]] = v[n % 2][__meshnum];
 
 			}
 			//送るべき数に従ってmalloc
 			int sendnum = 1;
 			p.senddata = (double*) malloc(sizeof(double) * sendnum);
-			//double senddata_0_1[0] = v[n][500];
-			*(p.senddata) = v[n][501];
+			//double senddata_0_1[0] = v[n%2][500];
+			*(p.senddata) = v[n % 2][501];
 			/**********送るべき配列の作成*****************/
 
 			/**send 1番のノードに1つだけ送る**/
-			mpiSend(p.senddata, sendnum, 1,&p);
+			mpiSend(p.senddata, sendnum, 1, &p);
 
 			/**recv 1番のノードからひとつ受け取る**/
 			int recvnum = 1;
 			p.recvdata = (double*) malloc(sizeof(double) * sendnum);
-			mpiRecv(p.recvdata, recvnum, 1,&p);
+			mpiRecv(p.recvdata, recvnum, 1, &p);
 
-			MPI_Wait(p.reqs, p.status); //受信用
-			MPI_Wait(p.reqs + 1, p.status + 1); //受信用
-			v[n][500] = *(p.recvdata);
+			MPI_Wait(&p.recvReqs, &p.recvStatus); //受信用
+			MPI_Wait(&p.recvReqs, &p.sendStatus); //受信用
+			v[n % 2][500] = *(p.recvdata);
 
-			//senddata_1_0[0] = v[n][501];
+			//senddata_1_0[0] = v[n%2][501];
 			//mpiSend(senddata_1_0, 1, 0);
 			//mpiRecv(recvdata_1_0, 1, 0);
 			//mpiWait(0);
-			//v[n][500] = recvdata_1_0[0];
+			//v[n%2][500] = recvdata_1_0[0];
 			for (__i = 0; (__i < 500); __i++) {
 
 				__meshnum = meshlistT1[__i];
-				zz[n][__meshnum] = (
-						((n < (double) 10) && __meshnum == (double) 1) ?
+				zz[n % 2][__meshnum] = (
+						((n % 2 < (double) 10) && __meshnum == (double) 1) ?
 								(double) 1.0 : (double) 0.0);
-				r[n][__meshnum] = (v[n][__meshnum] * v[n][__meshnum]
-						* v[n][__meshnum]);
-				v[(n + 1)][__meshnum] =
-						(v[n][__meshnum]
-								+ (((((v[n][__meshnum]
-										- (r[n][__meshnum] / (double) 3))
-										- w[n][__meshnum]) + zz[n][__meshnum])
-										- ((D
-												* ((v[n][xright[__meshnum]]
-														+ v[n][xleft[__meshnum]])
+				r[n % 2][__meshnum] = (v[n % 2][__meshnum] * v[n % 2][__meshnum]
+						* v[n % 2][__meshnum]);
+				v[(n + 1)%2)][__meshnum] =
+				(v[n%2][__meshnum]
+				+ (((((v[n%2][__meshnum]
+														- (r[n%2][__meshnum] / (double) 3))
+												- w[n%2][__meshnum]) + zz[n%2][__meshnum])
+								- ((D
+												* ((v[n%2][xright[__meshnum]]
+																+ v[n%2][xleft[__meshnum]])
 														- ((double) 2
-																* v[n][__meshnum])))
-												/ (dx * dx))) * dt));
-				w[(n + 1)][__meshnum] = (w[n][__meshnum]
-						+ (e * ((v[n][__meshnum] + b) - (g * w[n][__meshnum]))
-								* dt));
+																* v[n%2][__meshnum])))
+										/ (dx * dx))) * dt));
+				w[(n % 2 + 1)][__meshnum] = (w[n % 2][__meshnum]
+						+ (e
+								* ((v[n % 2][__meshnum] + b)
+										- (g * w[n % 2][__meshnum])) * dt));
 
 			}
 			free(p.recvdata);
@@ -216,7 +219,7 @@ int main(int argc, char **argv) {
 		}
 
 	}
-
+	MPI_Finalize();
 	return 0;
 }
 
@@ -232,7 +235,8 @@ int main(int argc, char **argv) {
 
 void mpiSend(double *data, int num, int sendNum, struct mpi* p) {
 	//int p.tag = 0;
-	MPI_Isend(data, num, MPI_DOUBLE, sendNum, p->tag, MPI_COMM_WORLD, p->reqs);
+	MPI_Isend(data, num, MPI_DOUBLE, sendNum, p->tag, MPI_COMM_WORLD,
+			&(p->sendReqs));
 }
 
 /***
@@ -245,10 +249,10 @@ void mpiSend(double *data, int num, int sendNum, struct mpi* p) {
  *
  * */
 
-void mpiRecv(double *data, int num, int recvNum,struct mpi* p) {
+void mpiRecv(double *data, int num, int recvNum, struct mpi* p) {
 	//int tag = 0;
 	MPI_Irecv(data, num, MPI_DOUBLE, recvNum, p->tag, MPI_COMM_WORLD,
-			p->reqs + 1);
+			&(p->recvReqs));
 
 }
 
